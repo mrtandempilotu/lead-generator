@@ -1,0 +1,348 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import AIAssistantPanel from "@/components/AIAssistantPanel";
+
+interface LeadRow {
+  id: string;
+  place_id: string | null;
+  name: string;
+  address: string | null;
+  category: string | null;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  rating: number | null;
+  ratings_total: number | null;
+  closed: boolean;
+  search_keyword: string | null;
+  search_city: string | null;
+  email_verification_status: string | null;
+  lead_status: string | null;
+  notes: string | null;
+  tags: string[] | null;
+  reminder_at: string | null;
+  is_favorite: boolean | null;
+  created_at: string;
+}
+
+const STATUS_COLUMNS: { key: string; label: string }[] = [
+  { key: "new", label: "Yeni" },
+  { key: "contacted", label: "İletişime Geçildi" },
+  { key: "interested", label: "İlgileniyor" },
+  { key: "meeting", label: "Toplantı" },
+  { key: "negotiation", label: "Görüşme" },
+  { key: "won", label: "Kazanıldı" },
+  { key: "lost", label: "Kaybedildi" },
+];
+
+const VERIFICATION_LABELS: Record<string, string> = {
+  valid: "Geçerli",
+  risky: "Riskli",
+  catchall: "Catch-all",
+  invalid: "Geçersiz",
+  unknown: "Bilinmiyor",
+};
+
+const VERIFICATION_STYLES: Record<string, string> = {
+  valid: "bg-emerald-500/10 text-emerald-400",
+  risky: "bg-amber-500/10 text-amber-400",
+  catchall: "bg-indigo-500/10 text-indigo-400",
+  invalid: "bg-red-500/10 text-red-400",
+  unknown: "bg-zinc-500/10 text-zinc-400",
+};
+
+function LeadCard({
+  lead,
+  onUpdate,
+}: {
+  lead: LeadRow;
+  onUpdate: (id: string, updates: Partial<LeadRow>) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [notes, setNotes] = useState(lead.notes ?? "");
+  const [tagsInput, setTagsInput] = useState((lead.tags ?? []).join(", "));
+  const [reminder, setReminder] = useState(
+    lead.reminder_at ? lead.reminder_at.slice(0, 10) : ""
+  );
+  const [saving, setSaving] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+
+  async function save() {
+    setSaving(true);
+    const tags = tagsInput
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+    await onUpdate(lead.id, {
+      notes,
+      tags,
+      reminder_at: reminder ? new Date(reminder).toISOString() : null,
+    });
+    setSaving(false);
+  }
+
+  return (
+    <div className="glass-card rounded-xl p-3 text-sm">
+      <div className="flex items-start justify-between gap-2">
+        <p className="flex items-center gap-1.5 font-medium text-zinc-100">
+          <button
+            type="button"
+            onClick={() => onUpdate(lead.id, { is_favorite: !lead.is_favorite })}
+            className={lead.is_favorite ? "text-amber-400" : "text-zinc-600 hover:text-amber-400"}
+            aria-label="Favori"
+          >
+            ★
+          </button>
+          {lead.name}
+        </p>
+        <select
+          value={lead.lead_status ?? "new"}
+          onChange={(e) => onUpdate(lead.id, { lead_status: e.target.value })}
+          className="rounded border border-white/10 bg-black/30 px-1 py-0.5 text-xs text-zinc-300 outline-none"
+        >
+          {STATUS_COLUMNS.map((s) => (
+            <option key={s.key} value={s.key}>
+              {s.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <p className="mt-1 text-xs text-zinc-500">
+        {lead.category || "—"} · {lead.search_city || "—"}
+      </p>
+      <p className="mt-1 truncate text-xs text-zinc-400">{lead.email}</p>
+      <p className="mt-1 text-xs text-zinc-500">
+        {lead.phone || "—"}
+        {lead.website && (
+          <>
+            {" · "}
+            <a
+              href={lead.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-indigo-400 hover:underline"
+            >
+              Site
+            </a>
+          </>
+        )}
+      </p>
+      <span
+        className={`mt-2 inline-block rounded px-1.5 py-0.5 text-xs ${
+          VERIFICATION_STYLES[lead.email_verification_status ?? "unknown"]
+        }`}
+      >
+        {VERIFICATION_LABELS[lead.email_verification_status ?? "unknown"]}
+      </span>
+
+      {(lead.tags ?? []).length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {(lead.tags ?? []).map((tag) => (
+            <span
+              key={tag}
+              className="rounded bg-white/5 px-1.5 py-0.5 text-[11px] text-zinc-400"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {lead.reminder_at && (
+        <p className="mt-1 text-[11px] text-amber-400">
+          Hatırlatıcı: {new Date(lead.reminder_at).toLocaleDateString("tr-TR")}
+        </p>
+      )}
+
+      <div className="mt-2 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="text-xs text-indigo-400 hover:underline"
+        >
+          {expanded ? "Kapat" : "Not / Etiket / Hatırlatıcı"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setAiOpen(true)}
+          className="text-xs text-indigo-400 hover:underline"
+        >
+          AI Mesaj
+        </button>
+      </div>
+
+      {aiOpen && (
+        <AIAssistantPanel
+          lead={{ name: lead.name, category: lead.category, city: lead.search_city }}
+          onClose={() => setAiOpen(false)}
+        />
+      )}
+
+      {expanded && (
+        <div className="mt-2 space-y-2 border-t border-white/5 pt-2">
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Not ekle..."
+            rows={2}
+            className="w-full rounded border border-white/10 bg-black/30 px-2 py-1 text-xs text-white outline-none focus:border-indigo-400"
+          />
+          <input
+            value={tagsInput}
+            onChange={(e) => setTagsInput(e.target.value)}
+            placeholder="etiket1, etiket2"
+            className="w-full rounded border border-white/10 bg-black/30 px-2 py-1 text-xs text-white outline-none focus:border-indigo-400"
+          />
+          <input
+            type="date"
+            value={reminder}
+            onChange={(e) => setReminder(e.target.value)}
+            className="w-full rounded border border-white/10 bg-black/30 px-2 py-1 text-xs text-white outline-none focus:border-indigo-400"
+          />
+          <button
+            type="button"
+            onClick={save}
+            disabled={saving}
+            className="w-full rounded bg-indigo-500 px-2 py-1 text-xs font-medium text-white transition hover:bg-indigo-400 disabled:opacity-50"
+          >
+            {saving ? "Kaydediliyor..." : "Kaydet"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function LeadsPage() {
+  const [leads, setLeads] = useState<LeadRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function load() {
+    try {
+      const res = await fetch("/api/leads");
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Bilinmeyen bir hata oluştu.");
+        return;
+      }
+      setLeads(data.leads);
+    } catch {
+      setError("Kayıtlı lead'ler yüklenirken bir hata oluştu.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function updateLead(id: string, updates: Partial<LeadRow>) {
+    setLeads((prev) =>
+      prev.map((l) => (l.id === id ? { ...l, ...updates } : l))
+    );
+    try {
+      await fetch(`/api/leads/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+    } catch {
+      // best-effort; a manual refresh will resync if this failed
+    }
+  }
+
+  const filtered = leads.filter((l) => {
+    if (favoritesOnly && !l.is_favorite) return false;
+    if (!query.trim()) return true;
+    const q = query.toLowerCase();
+    return (
+      l.name?.toLowerCase().includes(q) ||
+      l.email?.toLowerCase().includes(q) ||
+      l.search_city?.toLowerCase().includes(q) ||
+      l.search_keyword?.toLowerCase().includes(q) ||
+      l.category?.toLowerCase().includes(q)
+    );
+  });
+
+  return (
+    <main className="mx-auto max-w-7xl px-6 py-12">
+      <header className="mb-8 animate-fade-in-up">
+        <h1 className="text-3xl font-semibold tracking-tight text-white">CRM</h1>
+        <p className="mt-2 text-zinc-400">
+          Bulunan lead&apos;leri durumlarına göre yönetin; not, etiket ve
+          hatırlatıcı ekleyin.
+        </p>
+      </header>
+
+      <div className="mb-6 flex flex-wrap items-center gap-3 animate-fade-in-up">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="İsim, e-posta, şehir veya sektöre göre filtrele..."
+          className="w-full max-w-md rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white outline-none transition focus:border-indigo-400"
+        />
+        <label className="flex items-center gap-2 text-sm text-zinc-300">
+          <input
+            type="checkbox"
+            checked={favoritesOnly}
+            onChange={(e) => setFavoritesOnly(e.target.checked)}
+            className="h-4 w-4 rounded border-white/20 bg-black/30 accent-amber-400"
+          />
+          Sadece favoriler ★
+        </label>
+      </div>
+
+      {loading && <p className="text-sm text-zinc-400">Yükleniyor...</p>}
+      {error && (
+        <p className="rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+          {error}
+        </p>
+      )}
+
+      {!loading &&
+        !error &&
+        (leads.length === 0 ? (
+          <div className="glass-card animate-fade-in-up rounded-2xl p-6 text-sm text-zinc-400">
+            Henüz kayıtlı lead yok. Arama sayfasından bir arama yapın;
+            e-postası bulunan firmalar otomatik olarak burada listelenecek.
+          </div>
+        ) : (
+          <div className="flex animate-fade-in-up gap-4 overflow-x-auto pb-4">
+            {STATUS_COLUMNS.map((col) => {
+              const colLeads = filtered.filter(
+                (l) => (l.lead_status ?? "new") === col.key
+              );
+              return (
+                <div key={col.key} className="w-72 flex-shrink-0">
+                  <div className="mb-2 flex items-center justify-between px-1">
+                    <p className="text-sm font-medium text-zinc-300">
+                      {col.label}
+                    </p>
+                    <span className="text-xs text-zinc-500">
+                      {colLeads.length}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {colLeads.map((lead) => (
+                      <LeadCard key={lead.id} lead={lead} onUpdate={updateLead} />
+                    ))}
+                    {colLeads.length === 0 && (
+                      <div className="glass-card rounded-xl p-3 text-center text-xs text-zinc-600">
+                        Boş
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+    </main>
+  );
+}
