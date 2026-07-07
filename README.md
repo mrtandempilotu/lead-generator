@@ -187,9 +187,34 @@ using (auth.uid() = user_id or auth.role() = 'service_role')
 with check (auth.uid() = user_id or auth.role() = 'service_role');
 ```
 
-> **Not:** `/settings` sayfasında bir kullanıcı kendi Apify/Hunter/OpenRouter anahtarını girerse, o kullanıcının aramaları ve AI mesaj üretimi kendi anahtarıyla çalışır (paylaşılan sunucu anahtarları yerine). Boş bırakılırsa `.env.local`'deki paylaşılan varsayılan anahtarlar kullanılmaya devam eder. SMTP alanları şu an sadece saklanıyor; otomatik e-posta gönderimi henüz bu bilgileri kullanmıyor.
+> **Not:** `/settings` sayfasında bir kullanıcı kendi Apify/Hunter/OpenRouter anahtarını girerse, o kullanıcının aramaları ve AI mesaj üretimi kendi anahtarıyla çalışır (paylaşılan sunucu anahtarları yerine). Boş bırakılırsa `.env.local`'deki paylaşılan varsayılan anahtarlar kullanılmaya devam eder. SMTP alanları artık e-posta gönderiminde kullanılıyor (aşağıya bakın).
 
-7. **Project Settings > API**'den şu üç değeri alıp `.env.local`'e ekleyin (zaten eklenmişse atlayın):
+7. **E-posta gönderimi** (CRM'den ve toplu AI e-posta akışından doğrudan gönderim) için gönderilen e-postaların kaydını tutan bir migration çalıştırın:
+
+```sql
+create table if not exists public.email_log (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  lead_id uuid references public.leads(id) on delete set null,
+  to_email text not null,
+  subject text,
+  body text,
+  status text not null default 'sent' check (status in ('sent','failed')),
+  error text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.email_log enable row level security;
+
+create policy "Users manage own email log"
+on public.email_log for all
+using (auth.uid() = user_id or auth.role() = 'service_role')
+with check (auth.uid() = user_id or auth.role() = 'service_role');
+```
+
+> **Not:** E-posta göndermek için **Ayarlar** sayfasındaki SMTP alanları (sunucu, port, kullanıcı, şifre) dolu olmalıdır. Port 465 ise implicit TLS, 587/25 ise STARTTLS kullanılır. Gmail için "uygulama şifresi" (app password) oluşturmanız gerekir. Bir lead'e e-posta gönderildiğinde durumu otomatik olarak "İletişime Geçildi" yapılır (eğer "Yeni" ise).
+
+8. **Project Settings > API**'den şu üç değeri alıp `.env.local`'e ekleyin (zaten eklenmişse atlayın):
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
@@ -198,6 +223,13 @@ SUPABASE_SERVICE_ROLE_KEY=...
 ```
 
 `SUPABASE_SERVICE_ROLE_KEY` gizli tutulmalıdır — sadece sunucu tarafı kodda (`/api/*`) kullanılır, tarayıcıya asla gönderilmez.
+
+## Yeni özellikler (CRM)
+
+- **Lead skorlama:** Her lead, e-posta doğrulama durumu, web sitesi/telefon varlığı, Google puanı ve yorum sayısına göre 0-100 arası bir kalite skoru alır (Sıcak / Ilık / Soğuk). Kanban kolonlarındaki kartlar skora göre yüksekten düşüğe sıralanır. Skor türetilmiş bir değerdir, veritabanında saklanmaz — ekstra migration gerekmez.
+- **Hatırlatıcı paneli:** CRM sayfasının üstünde, vadesi gelmiş/bugün olan ve önümüzdeki 7 gün içindeki hatırlatıcılar listelenir; tek tıkla temizlenebilir.
+- **Toplu işlemler:** Kartlardaki onay kutularıyla birden çok lead seçip toplu durum değiştirme, toplu etiket ekleme, toplu favori işaretleme yapılabilir.
+- **Toplu AI e-posta:** Seçili firmalar için tek seferde AI ile soğuk/takip e-postaları üretilir, düzenlenir ve SMTP üzerinden toplu gönderilir.
 
 ## API anahtarları nasıl alınır
 
