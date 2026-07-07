@@ -7,7 +7,6 @@ Almanya'da doğrulanmış e-postalı B2B lead'ler (otel, restoran, fabrika, inş
 - **Dashboard** (`/`): toplam firma, doğrulanmış e-posta, kontak kalite skoru, export sayısı ve sektör/şehir/doğrulama grafikleri.
 - **Arama** (`/search`): sektör/anahtar kelime (örn. "otel", "inşaat firması") ve şehir (örn. "Berlin") girip aratırsınız; website/telefon/doğrulanmış e-posta filtreleri uygulanabilir.
 - **CRM** (`/leads`): e-postası bulunan tüm firmaların otomatik kaydedildiği liste.
-- **Harita** (`/map`): bulunan firmaların Almanya haritasında kümelenmiş gösterimi, şehir/radius filtresi.
 - **Ayarlar** (`/settings`): kendi Apify/Hunter/OpenRouter API anahtarlarınızı, SMTP bilgilerinizi ve dil tercihinizi kaydedin.
 
 Arka planda: `/api/search` üzerinden Apify'ın `compass/crawler-google-places` (Google Maps Scraper) actor'ü çalışır, firma adı/adres/telefon/website/puan çekilir; Hunter.io Domain Search ile eksik e-postalar tamamlanır; her bulunan e-posta Hunter'ın Email Verifier'ı ile doğrulanıp (Geçerli/Riskli/Catch-all/Geçersiz/Bilinmiyor) rozetlenir. Sonuçlar CSV, Excel veya JSON olarak indirilebilir.

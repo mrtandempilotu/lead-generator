@@ -22,8 +22,11 @@ export async function GET() {
 
   const { data: leads, error: leadsError } = await supabase
     .from("leads")
-    .select("category, search_city, email_verification_status, phone, website")
-    .eq("user_id", user.id);
+    .select(
+      "id, name, category, search_city, email, email_verification_status, lead_status, phone, website, created_at"
+    )
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
 
   if (leadsError) {
     return NextResponse.json({ error: leadsError.message }, { status: 500 });
@@ -76,6 +79,7 @@ export async function GET() {
     verifiedEmails,
     contactQualityScore,
     exportCount,
+    leads: rows,
     searchHistory: searchHistory ?? [],
     byIndustry: Object.entries(byIndustryMap)
       .map(([name, value]) => ({ name, value }))

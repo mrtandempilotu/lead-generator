@@ -21,7 +21,7 @@ export default async function RootLayout({
 
   return (
     <html lang="tr" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-zinc-950 font-sans text-zinc-100">
+      <body className="min-h-full flex flex-col bg-slate-50 font-sans text-zinc-900">
         <NavBar userEmail={user?.email ?? null} />
         {children}
       </body>

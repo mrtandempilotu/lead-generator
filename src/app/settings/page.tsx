@@ -45,13 +45,13 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-medium text-zinc-400">{label}</span>
+      <span className="mb-1 block text-xs font-medium text-zinc-500">{label}</span>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white outline-none transition focus:border-indigo-400"
+        className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-indigo-400 focus:bg-white"
       />
     </label>
   );
@@ -125,31 +125,31 @@ export default function SettingsPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
       <header className="mb-8 animate-fade-in-up">
-        <h1 className="text-3xl font-semibold tracking-tight text-white">Ayarlar</h1>
-        <p className="mt-2 text-zinc-400">
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">Ayarlar</h1>
+        <p className="mt-2 text-zinc-500">
           Kendi API anahtarlarınızı girerek arama ve AI asistan özelliklerini
           kendi kotanızla kullanabilirsiniz. Boş bırakılan alanlar için
           uygulamanın paylaşılan varsayılan anahtarları kullanılır.
         </p>
       </header>
 
-      {loading && <p className="text-sm text-zinc-400">Yükleniyor...</p>}
+      {loading && <p className="text-sm text-zinc-500">Yükleniyor...</p>}
 
       {!loading && (
         <div className="space-y-6 animate-fade-in-up">
           {error && (
-            <p className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+            <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
               {error}
             </p>
           )}
           {message && (
-            <p className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm text-emerald-400">
+            <p className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-600">
               {message}
             </p>
           )}
 
           <section className="glass-card rounded-2xl p-5">
-            <h2 className="mb-1 text-sm font-semibold text-white">API Anahtarları</h2>
+            <h2 className="mb-1 text-sm font-semibold text-zinc-900">API Anahtarları</h2>
             <p className="mb-4 text-xs text-zinc-500">
               Apify (Google Maps arama), Hunter.io (e-posta bulma/doğrulama) ve
               OpenRouter (AI mesaj üretimi).
@@ -177,7 +177,7 @@ export default function SettingsPage() {
           </section>
 
           <section className="glass-card rounded-2xl p-5">
-            <h2 className="mb-1 text-sm font-semibold text-white">SMTP (e-posta gönderimi)</h2>
+            <h2 className="mb-1 text-sm font-semibold text-zinc-900">SMTP (e-posta gönderimi)</h2>
             <p className="mb-4 text-xs text-zinc-500">
               Şu an sadece kaydediliyor; otomatik e-posta gönderimi henüz bu
               bilgileri kullanmıyor (yakında).
@@ -210,7 +210,7 @@ export default function SettingsPage() {
           </section>
 
           <section className="glass-card rounded-2xl p-5">
-            <h2 className="mb-1 text-sm font-semibold text-white">Dil</h2>
+            <h2 className="mb-1 text-sm font-semibold text-zinc-900">Dil</h2>
             <p className="mb-4 text-xs text-zinc-500">
               Tercihiniz kaydedilir; arayüzün tamamının çevirisi henüz
               uygulanmadı (yakında).
@@ -224,7 +224,7 @@ export default function SettingsPage() {
                   className={`rounded-lg px-3 py-1.5 text-sm transition ${
                     form.language === l.value
                       ? "bg-indigo-500 text-white"
-                      : "border border-white/10 text-zinc-400 hover:text-white"
+                      : "border border-zinc-200 text-zinc-500 hover:text-zinc-900"
                   }`}
                 >
                   {l.label}

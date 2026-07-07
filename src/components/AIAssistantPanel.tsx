@@ -66,19 +66,19 @@ export default function AIAssistantPanel({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-      <div className="glass-card w-full max-w-lg rounded-2xl bg-zinc-950 p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/50 px-4">
+      <div className="glass-card w-full max-w-lg rounded-2xl bg-white p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">AI Asistan</h2>
+          <h2 className="text-lg font-semibold text-zinc-900">AI Asistan</h2>
           <button
             onClick={onClose}
-            className="text-zinc-400 transition hover:text-white"
+            className="text-zinc-400 transition hover:text-zinc-900"
           >
             ✕
           </button>
         </div>
 
-        <p className="mb-4 text-sm text-zinc-400">
+        <p className="mb-4 text-sm text-zinc-500">
           {lead.name ?? "Bu firma"} için mesaj oluştur.
         </p>
 
@@ -91,7 +91,7 @@ export default function AIAssistantPanel({
               className={`rounded-lg px-3 py-1.5 text-xs transition ${
                 type === t.key
                   ? "bg-indigo-500 text-white"
-                  : "border border-white/10 text-zinc-300 hover:bg-white/10"
+                  : "border border-zinc-200 text-zinc-600 hover:bg-zinc-100"
               }`}
             >
               {t.label}
@@ -108,7 +108,7 @@ export default function AIAssistantPanel({
               className={`rounded-lg px-3 py-1.5 text-xs transition ${
                 language === l.key
                   ? "bg-indigo-500 text-white"
-                  : "border border-white/10 text-zinc-300 hover:bg-white/10"
+                  : "border border-zinc-200 text-zinc-600 hover:bg-zinc-100"
               }`}
             >
               {l.label}
@@ -125,7 +125,7 @@ export default function AIAssistantPanel({
           {loading ? "Oluşturuluyor..." : "Oluştur"}
         </button>
 
-        {error && <p className="mb-3 text-sm text-red-400">{error}</p>}
+        {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
 
         {result && (
           <div>
@@ -133,12 +133,12 @@ export default function AIAssistantPanel({
               readOnly
               value={result}
               rows={8}
-              className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white outline-none"
+              className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none"
             />
             <button
               type="button"
               onClick={copy}
-              className="mt-2 rounded-lg border border-white/10 px-4 py-1.5 text-xs text-zinc-300 transition hover:bg-white/10"
+              className="mt-2 rounded-lg border border-zinc-200 px-4 py-1.5 text-xs text-zinc-600 transition hover:bg-zinc-100"
             >
               {copied ? "Kopyalandı!" : "Kopyala"}
             </button>

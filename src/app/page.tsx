@@ -23,16 +23,50 @@ interface SearchHistoryItem {
   created_at: string;
 }
 
+interface DashboardLead {
+  id: string;
+  name: string;
+  category: string | null;
+  search_city: string | null;
+  email: string | null;
+  email_verification_status: string | null;
+  lead_status: string | null;
+  phone: string | null;
+  website: string | null;
+  created_at: string;
+}
+
 interface DashboardData {
   totalCompanies: number;
   verifiedEmails: number;
   contactQualityScore: number;
   exportCount: number;
+  leads: DashboardLead[];
   searchHistory: SearchHistoryItem[];
   byIndustry: { name: string; value: number }[];
   byCity: { name: string; value: number }[];
   byVerification: { name: string; value: number }[];
 }
+
+const LEAD_STATUS_LABELS: Record<string, string> = {
+  new: "Yeni",
+  contacted: "İletişime Geçildi",
+  interested: "İlgileniyor",
+  meeting: "Toplantı",
+  negotiation: "Görüşme",
+  won: "Kazanıldı",
+  lost: "Kaybedildi",
+};
+
+const LEAD_STATUS_STYLES: Record<string, string> = {
+  new: "bg-indigo-50 text-indigo-600",
+  contacted: "bg-amber-50 text-amber-600",
+  interested: "bg-sky-50 text-sky-600",
+  meeting: "bg-violet-50 text-violet-600",
+  negotiation: "bg-orange-50 text-orange-600",
+  won: "bg-emerald-50 text-emerald-600",
+  lost: "bg-red-50 text-red-600",
+};
 
 const VERIFICATION_COLORS: Record<string, string> = {
   valid: "#34d399",
@@ -50,18 +84,27 @@ const VERIFICATION_LABELS: Record<string, string> = {
   unknown: "Bilinmiyor",
 };
 
+const VERIFICATION_BADGE_STYLES: Record<string, string> = {
+  valid: "bg-emerald-50 text-emerald-600",
+  risky: "bg-amber-50 text-amber-600",
+  catchall: "bg-indigo-50 text-indigo-600",
+  invalid: "bg-red-50 text-red-600",
+  unknown: "bg-zinc-100 text-zinc-500",
+};
+
 const TOOLTIP_STYLE = {
-  background: "#18181b",
-  border: "1px solid rgba(255,255,255,0.1)",
+  background: "#ffffff",
+  border: "1px solid rgba(15,23,42,0.1)",
   borderRadius: 8,
   fontSize: 12,
+  color: "#18181b",
 };
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="glass-card animate-fade-in-up rounded-2xl p-5">
-      <p className="text-xs font-medium text-zinc-400">{label}</p>
-      <p className="mt-2 text-3xl font-semibold text-white">{value}</p>
+      <p className="text-xs font-medium text-zinc-500">{label}</p>
+      <p className="mt-2 text-3xl font-semibold text-zinc-900">{value}</p>
     </div>
   );
 }
@@ -70,6 +113,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     async function load() {
@@ -93,7 +137,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <main className="mx-auto max-w-6xl px-6 py-12">
-        <p className="text-sm text-zinc-400">Yükleniyor...</p>
+        <p className="text-sm text-zinc-500">Yükleniyor...</p>
       </main>
     );
   }
@@ -101,7 +145,7 @@ export default function DashboardPage() {
   if (error || !data) {
     return (
       <main className="mx-auto max-w-6xl px-6 py-12">
-        <p className="rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+        <p className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600">
           {error ?? "Veri bulunamadı."}
         </p>
       </main>
@@ -111,10 +155,10 @@ export default function DashboardPage() {
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
       <header className="mb-8 animate-fade-in-up">
-        <h1 className="text-3xl font-semibold tracking-tight text-white">
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">
           Dashboard
         </h1>
-        <p className="mt-2 text-zinc-400">
+        <p className="mt-2 text-zinc-500">
           Aramalarınızın ve CRM&apos;inizin genel görünümü.
         </p>
       </header>
@@ -131,7 +175,7 @@ export default function DashboardPage() {
 
       <div className="mb-8 grid gap-4 lg:grid-cols-2">
         <div className="glass-card animate-fade-in-up rounded-2xl p-5">
-          <p className="mb-4 text-sm font-medium text-zinc-300">
+          <p className="mb-4 text-sm font-medium text-zinc-700">
             Sektöre Göre Firmalar
           </p>
           {data.byIndustry.length === 0 ? (
@@ -139,16 +183,16 @@ export default function DashboardPage() {
           ) : (
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={data.byIndustry}>
-                <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <CartesianGrid stroke="rgba(15,23,42,0.06)" vertical={false} />
                 <XAxis
                   dataKey="name"
-                  tick={{ fill: "#a1a1aa", fontSize: 11 }}
+                  tick={{ fill: "#71717a", fontSize: 11 }}
                   interval={0}
                   angle={-20}
                   textAnchor="end"
                   height={60}
                 />
-                <YAxis tick={{ fill: "#a1a1aa", fontSize: 11 }} allowDecimals={false} />
+                <YAxis tick={{ fill: "#71717a", fontSize: 11 }} allowDecimals={false} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
                 <Bar dataKey="value" fill="#6366f1" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -157,7 +201,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="glass-card animate-fade-in-up rounded-2xl p-5">
-          <p className="mb-4 text-sm font-medium text-zinc-300">
+          <p className="mb-4 text-sm font-medium text-zinc-700">
             Şehre Göre Firmalar
           </p>
           {data.byCity.length === 0 ? (
@@ -165,9 +209,9 @@ export default function DashboardPage() {
           ) : (
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={data.byCity}>
-                <CartesianGrid stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="name" tick={{ fill: "#a1a1aa", fontSize: 11 }} />
-                <YAxis tick={{ fill: "#a1a1aa", fontSize: 11 }} allowDecimals={false} />
+                <CartesianGrid stroke="rgba(15,23,42,0.06)" vertical={false} />
+                <XAxis dataKey="name" tick={{ fill: "#71717a", fontSize: 11 }} />
+                <YAxis tick={{ fill: "#71717a", fontSize: 11 }} allowDecimals={false} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
                 <Bar dataKey="value" fill="#818cf8" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -178,7 +222,7 @@ export default function DashboardPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="glass-card animate-fade-in-up rounded-2xl p-5">
-          <p className="mb-4 text-sm font-medium text-zinc-300">
+          <p className="mb-4 text-sm font-medium text-zinc-700">
             E-posta Doğrulama Oranı
           </p>
           {data.byVerification.length === 0 ? (
@@ -203,7 +247,7 @@ export default function DashboardPage() {
                 </Pie>
                 <Legend
                   formatter={(value: string) => VERIFICATION_LABELS[value] ?? value}
-                  wrapperStyle={{ fontSize: 12, color: "#a1a1aa" }}
+                  wrapperStyle={{ fontSize: 12, color: "#71717a" }}
                 />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
               </PieChart>
@@ -212,7 +256,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="glass-card animate-fade-in-up rounded-2xl p-5">
-          <p className="mb-4 text-sm font-medium text-zinc-300">Son Aramalar</p>
+          <p className="mb-4 text-sm font-medium text-zinc-700">Son Aramalar</p>
           {data.searchHistory.length === 0 ? (
             <p className="text-sm text-zinc-500">Henüz arama yapılmadı.</p>
           ) : (
@@ -220,9 +264,9 @@ export default function DashboardPage() {
               {data.searchHistory.map((s) => (
                 <li
                   key={s.id}
-                  className="flex items-center justify-between border-b border-white/5 pb-2 text-sm last:border-0"
+                  className="flex items-center justify-between border-b border-zinc-100 pb-2 text-sm last:border-0"
                 >
-                  <span className="text-zinc-200">
+                  <span className="text-zinc-700">
                     {s.keyword} · {s.city}
                   </span>
                   <span className="text-xs text-zinc-500">
@@ -232,6 +276,116 @@ export default function DashboardPage() {
                 </li>
               ))}
             </ul>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 animate-fade-in-up">
+          <p className="text-sm font-medium text-zinc-700">
+            Tüm Lead&apos;ler ({data.leads.length})
+          </p>
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="İsim, e-posta, şehir veya sektöre göre filtrele..."
+            className="w-full max-w-xs rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-indigo-400 focus:bg-white"
+          />
+        </div>
+
+        <div className="glass-card animate-fade-in-up overflow-hidden rounded-2xl">
+          {data.leads.length === 0 ? (
+            <p className="p-6 text-sm text-zinc-500">
+              Henüz kayıtlı lead yok. Arama sayfasından bir arama yapın.
+            </p>
+          ) : (
+            <div className="max-h-[520px] overflow-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="sticky top-0 border-b border-zinc-200 bg-zinc-50 text-zinc-500">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Firma Adı</th>
+                    <th className="px-4 py-3 font-medium">Kategori</th>
+                    <th className="px-4 py-3 font-medium">Şehir</th>
+                    <th className="px-4 py-3 font-medium">E-posta</th>
+                    <th className="px-4 py-3 font-medium">Doğrulama</th>
+                    <th className="px-4 py-3 font-medium">Durum</th>
+                    <th className="px-4 py-3 font-medium">Telefon</th>
+                    <th className="px-4 py-3 font-medium">Website</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.leads
+                    .filter((l) => {
+                      if (!query.trim()) return true;
+                      const q = query.toLowerCase();
+                      return (
+                        l.name?.toLowerCase().includes(q) ||
+                        l.email?.toLowerCase().includes(q) ||
+                        l.search_city?.toLowerCase().includes(q) ||
+                        l.category?.toLowerCase().includes(q)
+                      );
+                    })
+                    .map((lead) => (
+                      <tr
+                        key={lead.id}
+                        className="border-b border-zinc-100 last:border-0 hover:bg-zinc-50"
+                      >
+                        <td className="px-4 py-3 font-medium text-zinc-900">
+                          {lead.name}
+                        </td>
+                        <td className="px-4 py-3 text-zinc-500">
+                          {lead.category || "—"}
+                        </td>
+                        <td className="px-4 py-3 text-zinc-500">
+                          {lead.search_city || "—"}
+                        </td>
+                        <td className="px-4 py-3 text-zinc-500">
+                          {lead.email || "—"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`rounded px-1.5 py-0.5 text-xs ${
+                              VERIFICATION_BADGE_STYLES[
+                                lead.email_verification_status ?? "unknown"
+                              ]
+                            }`}
+                          >
+                            {VERIFICATION_LABELS[
+                              lead.email_verification_status ?? "unknown"
+                            ] ?? "Bilinmiyor"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`rounded px-1.5 py-0.5 text-xs ${
+                              LEAD_STATUS_STYLES[lead.lead_status ?? "new"]
+                            }`}
+                          >
+                            {LEAD_STATUS_LABELS[lead.lead_status ?? "new"]}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-zinc-500">
+                          {lead.phone || "—"}
+                        </td>
+                        <td className="px-4 py-3">
+                          {lead.website ? (
+                            <a
+                              href={lead.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-indigo-600 hover:underline"
+                            >
+                              Siteyi Aç
+                            </a>
+                          ) : (
+                            <span className="text-zinc-500">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>

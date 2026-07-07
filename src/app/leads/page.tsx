@@ -26,14 +26,14 @@ interface LeadRow {
   created_at: string;
 }
 
-const STATUS_COLUMNS: { key: string; label: string }[] = [
-  { key: "new", label: "Yeni" },
-  { key: "contacted", label: "İletişime Geçildi" },
-  { key: "interested", label: "İlgileniyor" },
-  { key: "meeting", label: "Toplantı" },
-  { key: "negotiation", label: "Görüşme" },
-  { key: "won", label: "Kazanıldı" },
-  { key: "lost", label: "Kaybedildi" },
+const STATUS_COLUMNS: { key: string; label: string; dot: string; badge: string }[] = [
+  { key: "new", label: "Yeni", dot: "bg-indigo-500", badge: "bg-indigo-50 text-indigo-600" },
+  { key: "contacted", label: "İletişime Geçildi", dot: "bg-amber-500", badge: "bg-amber-50 text-amber-600" },
+  { key: "interested", label: "İlgileniyor", dot: "bg-sky-500", badge: "bg-sky-50 text-sky-600" },
+  { key: "meeting", label: "Toplantı", dot: "bg-violet-500", badge: "bg-violet-50 text-violet-600" },
+  { key: "negotiation", label: "Görüşme", dot: "bg-orange-500", badge: "bg-orange-50 text-orange-600" },
+  { key: "won", label: "Kazanıldı", dot: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-600" },
+  { key: "lost", label: "Kaybedildi", dot: "bg-red-500", badge: "bg-red-50 text-red-600" },
 ];
 
 const VERIFICATION_LABELS: Record<string, string> = {
@@ -45,11 +45,11 @@ const VERIFICATION_LABELS: Record<string, string> = {
 };
 
 const VERIFICATION_STYLES: Record<string, string> = {
-  valid: "bg-emerald-500/10 text-emerald-400",
-  risky: "bg-amber-500/10 text-amber-400",
-  catchall: "bg-indigo-500/10 text-indigo-400",
-  invalid: "bg-red-500/10 text-red-400",
-  unknown: "bg-zinc-500/10 text-zinc-400",
+  valid: "bg-emerald-50 text-emerald-600",
+  risky: "bg-amber-50 text-amber-600",
+  catchall: "bg-indigo-50 text-indigo-600",
+  invalid: "bg-red-50 text-red-600",
+  unknown: "bg-zinc-100 text-zinc-500",
 };
 
 function LeadCard({
@@ -85,11 +85,11 @@ function LeadCard({
   return (
     <div className="glass-card rounded-xl p-3 text-sm">
       <div className="flex items-start justify-between gap-2">
-        <p className="flex items-center gap-1.5 font-medium text-zinc-100">
+        <p className="flex items-center gap-1.5 font-medium text-zinc-900">
           <button
             type="button"
             onClick={() => onUpdate(lead.id, { is_favorite: !lead.is_favorite })}
-            className={lead.is_favorite ? "text-amber-400" : "text-zinc-600 hover:text-amber-400"}
+            className={lead.is_favorite ? "text-amber-500" : "text-zinc-300 hover:text-amber-500"}
             aria-label="Favori"
           >
             ★
@@ -99,7 +99,7 @@ function LeadCard({
         <select
           value={lead.lead_status ?? "new"}
           onChange={(e) => onUpdate(lead.id, { lead_status: e.target.value })}
-          className="rounded border border-white/10 bg-black/30 px-1 py-0.5 text-xs text-zinc-300 outline-none"
+          className="rounded border border-zinc-200 bg-zinc-50 px-1 py-0.5 text-xs text-zinc-600 outline-none"
         >
           {STATUS_COLUMNS.map((s) => (
             <option key={s.key} value={s.key}>
@@ -112,7 +112,7 @@ function LeadCard({
       <p className="mt-1 text-xs text-zinc-500">
         {lead.category || "—"} · {lead.search_city || "—"}
       </p>
-      <p className="mt-1 truncate text-xs text-zinc-400">{lead.email}</p>
+      <p className="mt-1 truncate text-xs text-zinc-500">{lead.email}</p>
       <p className="mt-1 text-xs text-zinc-500">
         {lead.phone || "—"}
         {lead.website && (
@@ -122,7 +122,7 @@ function LeadCard({
               href={lead.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-indigo-400 hover:underline"
+              className="text-indigo-600 hover:underline"
             >
               Site
             </a>
@@ -142,7 +142,7 @@ function LeadCard({
           {(lead.tags ?? []).map((tag) => (
             <span
               key={tag}
-              className="rounded bg-white/5 px-1.5 py-0.5 text-[11px] text-zinc-400"
+              className="rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] text-zinc-600"
             >
               {tag}
             </span>
@@ -151,7 +151,7 @@ function LeadCard({
       )}
 
       {lead.reminder_at && (
-        <p className="mt-1 text-[11px] text-amber-400">
+        <p className="mt-1 text-[11px] text-amber-600">
           Hatırlatıcı: {new Date(lead.reminder_at).toLocaleDateString("tr-TR")}
         </p>
       )}
@@ -160,14 +160,14 @@ function LeadCard({
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className="text-xs text-indigo-400 hover:underline"
+          className="text-xs text-indigo-600 hover:underline"
         >
           {expanded ? "Kapat" : "Not / Etiket / Hatırlatıcı"}
         </button>
         <button
           type="button"
           onClick={() => setAiOpen(true)}
-          className="text-xs text-indigo-400 hover:underline"
+          className="text-xs text-indigo-600 hover:underline"
         >
           AI Mesaj
         </button>
@@ -181,25 +181,25 @@ function LeadCard({
       )}
 
       {expanded && (
-        <div className="mt-2 space-y-2 border-t border-white/5 pt-2">
+        <div className="mt-2 space-y-2 border-t border-zinc-100 pt-2">
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Not ekle..."
             rows={2}
-            className="w-full rounded border border-white/10 bg-black/30 px-2 py-1 text-xs text-white outline-none focus:border-indigo-400"
+            className="w-full rounded border border-zinc-200 bg-zinc-50 px-2 py-1 text-xs text-zinc-900 outline-none focus:border-indigo-400 focus:bg-white"
           />
           <input
             value={tagsInput}
             onChange={(e) => setTagsInput(e.target.value)}
             placeholder="etiket1, etiket2"
-            className="w-full rounded border border-white/10 bg-black/30 px-2 py-1 text-xs text-white outline-none focus:border-indigo-400"
+            className="w-full rounded border border-zinc-200 bg-zinc-50 px-2 py-1 text-xs text-zinc-900 outline-none focus:border-indigo-400 focus:bg-white"
           />
           <input
             type="date"
             value={reminder}
             onChange={(e) => setReminder(e.target.value)}
-            className="w-full rounded border border-white/10 bg-black/30 px-2 py-1 text-xs text-white outline-none focus:border-indigo-400"
+            className="w-full rounded border border-zinc-200 bg-zinc-50 px-2 py-1 text-xs text-zinc-900 outline-none focus:border-indigo-400 focus:bg-white"
           />
           <button
             type="button"
@@ -273,8 +273,8 @@ export default function LeadsPage() {
   return (
     <main className="mx-auto max-w-7xl px-6 py-12">
       <header className="mb-8 animate-fade-in-up">
-        <h1 className="text-3xl font-semibold tracking-tight text-white">CRM</h1>
-        <p className="mt-2 text-zinc-400">
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">CRM</h1>
+        <p className="mt-2 text-zinc-500">
           Bulunan lead&apos;leri durumlarına göre yönetin; not, etiket ve
           hatırlatıcı ekleyin.
         </p>
@@ -285,22 +285,22 @@ export default function LeadsPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="İsim, e-posta, şehir veya sektöre göre filtrele..."
-          className="w-full max-w-md rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white outline-none transition focus:border-indigo-400"
+          className="w-full max-w-md rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-indigo-400 focus:bg-white"
         />
-        <label className="flex items-center gap-2 text-sm text-zinc-300">
+        <label className="flex items-center gap-2 text-sm text-zinc-600">
           <input
             type="checkbox"
             checked={favoritesOnly}
             onChange={(e) => setFavoritesOnly(e.target.checked)}
-            className="h-4 w-4 rounded border-white/20 bg-black/30 accent-amber-400"
+            className="h-4 w-4 rounded border-zinc-300 bg-white accent-amber-500"
           />
           Sadece favoriler ★
         </label>
       </div>
 
-      {loading && <p className="text-sm text-zinc-400">Yükleniyor...</p>}
+      {loading && <p className="text-sm text-zinc-500">Yükleniyor...</p>}
       {error && (
-        <p className="rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+        <p className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600">
           {error}
         </p>
       )}
@@ -308,23 +308,31 @@ export default function LeadsPage() {
       {!loading &&
         !error &&
         (leads.length === 0 ? (
-          <div className="glass-card animate-fade-in-up rounded-2xl p-6 text-sm text-zinc-400">
+          <div className="glass-card animate-fade-in-up rounded-2xl p-6 text-sm text-zinc-500">
             Henüz kayıtlı lead yok. Arama sayfasından bir arama yapın;
             e-postası bulunan firmalar otomatik olarak burada listelenecek.
           </div>
         ) : (
-          <div className="flex animate-fade-in-up gap-4 overflow-x-auto pb-4">
+          <div className="grid animate-fade-in-up gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {STATUS_COLUMNS.map((col) => {
               const colLeads = filtered.filter(
                 (l) => (l.lead_status ?? "new") === col.key
               );
               return (
-                <div key={col.key} className="w-72 flex-shrink-0">
-                  <div className="mb-2 flex items-center justify-between px-1">
-                    <p className="text-sm font-medium text-zinc-300">
-                      {col.label}
-                    </p>
-                    <span className="text-xs text-zinc-500">
+                <div
+                  key={col.key}
+                  className="flex flex-col rounded-2xl border border-zinc-200/70 bg-white/50 p-3"
+                >
+                  <div className="mb-3 flex items-center justify-between px-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`h-2 w-2 rounded-full ${col.dot}`} />
+                      <p className="text-sm font-semibold text-zinc-700">
+                        {col.label}
+                      </p>
+                    </div>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-semibold ${col.badge}`}
+                    >
                       {colLeads.length}
                     </span>
                   </div>
@@ -333,7 +341,7 @@ export default function LeadsPage() {
                       <LeadCard key={lead.id} lead={lead} onUpdate={updateLead} />
                     ))}
                     {colLeads.length === 0 && (
-                      <div className="glass-card rounded-xl p-3 text-center text-xs text-zinc-600">
+                      <div className="rounded-xl border border-dashed border-zinc-200 p-4 text-center text-xs text-zinc-400">
                         Boş
                       </div>
                     )}

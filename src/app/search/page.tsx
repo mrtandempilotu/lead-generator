@@ -60,11 +60,11 @@ const VERIFICATION_LABELS: Record<string, string> = {
 };
 
 const VERIFICATION_STYLES: Record<string, string> = {
-  valid: "bg-emerald-500/10 text-emerald-400",
-  risky: "bg-amber-500/10 text-amber-400",
-  catchall: "bg-indigo-500/10 text-indigo-400",
-  invalid: "bg-red-500/10 text-red-400",
-  unknown: "bg-zinc-500/10 text-zinc-400",
+  valid: "bg-emerald-50 text-emerald-600",
+  risky: "bg-amber-50 text-amber-600",
+  catchall: "bg-indigo-50 text-indigo-600",
+  invalid: "bg-red-50 text-red-600",
+  unknown: "bg-zinc-100 text-zinc-500",
 };
 
 function exportRows(leads: Lead[]) {
@@ -97,7 +97,10 @@ async function logExport(format: string, count: number) {
 export default function SearchPage() {
   const [keyword, setKeyword] = useState("");
   const [city, setCity] = useState("");
-  const [maxResults, setMaxResults] = useState(20);
+  // Higher default than before: since only a fraction of raw results end up
+  // having a discoverable email (especially in sectors like healthcare where
+  // businesses rarely publish one), a larger initial pull yields more usable leads.
+  const [maxResults, setMaxResults] = useState(40);
   const [websiteOnly, setWebsiteOnly] = useState(false);
   const [phoneOnly, setPhoneOnly] = useState(false);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
@@ -251,10 +254,10 @@ export default function SearchPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
       <header className="mb-8 animate-fade-in-up">
-        <h1 className="text-3xl font-semibold tracking-tight text-white">
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">
           Firma Ara
         </h1>
-        <p className="mt-2 text-zinc-400">
+        <p className="mt-2 text-zinc-500">
           İş kıyafeti / uniforma satın alma potansiyeli olan firmaları (otel,
           restoran, fabrika, inşaat vb.) Almanya genelinde arayın.
         </p>
@@ -269,19 +272,19 @@ export default function SearchPage() {
             {savedSearches.map((s) => (
               <span
                 key={s.id}
-                className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-300"
+                className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs text-zinc-600"
               >
                 <button
                   type="button"
                   onClick={() => applySavedSearch(s)}
-                  className="hover:text-white"
+                  className="hover:text-zinc-900"
                 >
                   {s.keyword} · {s.city}
                 </button>
                 <button
                   type="button"
                   onClick={() => deleteSavedSearch(s.id)}
-                  className="text-zinc-500 hover:text-red-400"
+                  className="text-zinc-500 hover:text-red-600"
                   aria-label="Sil"
                 >
                   ✕
@@ -298,7 +301,7 @@ export default function SearchPage() {
       >
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
-            <label className="mb-1 block text-sm font-medium text-zinc-400">
+            <label className="mb-1 block text-sm font-medium text-zinc-500">
               Sektör / Anahtar Kelime
             </label>
             <input
@@ -306,7 +309,7 @@ export default function SearchPage() {
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               placeholder="örn. otel, inşaat firması, fabrika"
-              className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white outline-none transition focus:border-indigo-400"
+              className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-indigo-400 focus:bg-white"
             />
             <datalist id="sector-suggestions">
               {SECTOR_SUGGESTIONS.map((s) => (
@@ -315,7 +318,7 @@ export default function SearchPage() {
             </datalist>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-zinc-400">
+            <label className="mb-1 block text-sm font-medium text-zinc-500">
               Şehir (Almanya)
             </label>
             <input
@@ -323,7 +326,7 @@ export default function SearchPage() {
               value={city}
               onChange={(e) => setCity(e.target.value)}
               placeholder="örn. Berlin, München"
-              className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white outline-none transition focus:border-indigo-400"
+              className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-indigo-400 focus:bg-white"
             />
             <datalist id="city-suggestions">
               {CITY_SUGGESTIONS.map((c) => (
@@ -332,7 +335,7 @@ export default function SearchPage() {
             </datalist>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-zinc-400">
+            <label className="mb-1 block text-sm font-medium text-zinc-500">
               Maksimum Sonuç
             </label>
             <input
@@ -341,36 +344,36 @@ export default function SearchPage() {
               max={100}
               value={maxResults}
               onChange={(e) => setMaxResults(Number(e.target.value))}
-              className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white outline-none transition focus:border-indigo-400"
+              className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-indigo-400 focus:bg-white"
             />
           </div>
         </div>
 
         <div className="mt-4 flex flex-wrap gap-4">
-          <label className="flex items-center gap-2 text-sm text-zinc-300">
+          <label className="flex items-center gap-2 text-sm text-zinc-600">
             <input
               type="checkbox"
               checked={websiteOnly}
               onChange={(e) => setWebsiteOnly(e.target.checked)}
-              className="h-4 w-4 rounded border-white/20 bg-black/30 accent-indigo-500"
+              className="h-4 w-4 rounded border-zinc-300 bg-white accent-indigo-500"
             />
             Sadece website olanlar
           </label>
-          <label className="flex items-center gap-2 text-sm text-zinc-300">
+          <label className="flex items-center gap-2 text-sm text-zinc-600">
             <input
               type="checkbox"
               checked={phoneOnly}
               onChange={(e) => setPhoneOnly(e.target.checked)}
-              className="h-4 w-4 rounded border-white/20 bg-black/30 accent-indigo-500"
+              className="h-4 w-4 rounded border-zinc-300 bg-white accent-indigo-500"
             />
             Sadece telefon olanlar
           </label>
-          <label className="flex items-center gap-2 text-sm text-zinc-300">
+          <label className="flex items-center gap-2 text-sm text-zinc-600">
             <input
               type="checkbox"
               checked={verifiedOnly}
               onChange={(e) => setVerifiedOnly(e.target.checked)}
-              className="h-4 w-4 rounded border-white/20 bg-black/30 accent-indigo-500"
+              className="h-4 w-4 rounded border-zinc-300 bg-white accent-indigo-500"
             />
             Sadece doğrulanmış e-posta
           </label>
@@ -388,7 +391,7 @@ export default function SearchPage() {
             type="button"
             onClick={saveCurrentSearch}
             disabled={savingSearch || !keyword.trim() || !city.trim()}
-            className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-white/10 disabled:opacity-50"
+            className="rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 disabled:opacity-50"
           >
             {savingSearch ? "Kaydediliyor..." : "Aramayı Kaydet"}
           </button>
@@ -397,21 +400,21 @@ export default function SearchPage() {
               <button
                 type="button"
                 onClick={exportCsv}
-                className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-white/10"
+                className="rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100"
               >
                 CSV ({leads.length})
               </button>
               <button
                 type="button"
                 onClick={exportExcel}
-                className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-white/10"
+                className="rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100"
               >
                 Excel
               </button>
               <button
                 type="button"
                 onClick={exportJson}
-                className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-white/10"
+                className="rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100"
               >
                 JSON
               </button>
@@ -419,19 +422,19 @@ export default function SearchPage() {
           )}
         </div>
 
-        {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
       </form>
 
       {hasSearched && (
         <div className="glass-card animate-fade-in-up overflow-hidden rounded-2xl">
           {leads.length === 0 ? (
-            <p className="p-6 text-sm text-zinc-400">
+            <p className="p-6 text-sm text-zinc-500">
               Sonuç bulunamadı. Farklı bir sektör, şehir veya filtre deneyin.
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="border-b border-white/10 bg-white/[0.02] text-zinc-400">
+                <thead className="border-b border-zinc-200 bg-zinc-50 text-zinc-500">
                   <tr>
                     <th className="px-4 py-3 font-medium">Firma Adı</th>
                     <th className="px-4 py-3 font-medium">Kategori</th>
@@ -447,26 +450,26 @@ export default function SearchPage() {
                   {leads.map((lead) => (
                     <tr
                       key={lead.placeId}
-                      className="border-b border-white/5 last:border-0 hover:bg-white/[0.03]"
+                      className="border-b border-zinc-100 last:border-0 hover:bg-zinc-50"
                     >
-                      <td className="px-4 py-3 font-medium text-zinc-100">
+                      <td className="px-4 py-3 font-medium text-zinc-900">
                         {lead.name}
                         {lead.closed && (
-                          <span className="ml-2 rounded bg-red-500/10 px-1.5 py-0.5 text-xs text-red-400">
+                          <span className="ml-2 rounded bg-red-50 px-1.5 py-0.5 text-xs text-red-600">
                             Kapalı
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-zinc-400">
+                      <td className="px-4 py-3 text-zinc-500">
                         {lead.category || "—"}
                       </td>
-                      <td className="px-4 py-3 text-zinc-400">
+                      <td className="px-4 py-3 text-zinc-500">
                         {lead.address}
                       </td>
-                      <td className="px-4 py-3 text-zinc-400">
+                      <td className="px-4 py-3 text-zinc-500">
                         {lead.phone || "—"}
                       </td>
-                      <td className="px-4 py-3 text-zinc-400">
+                      <td className="px-4 py-3 text-zinc-500">
                         {lead.email || "—"}
                       </td>
                       <td className="px-4 py-3">
@@ -490,7 +493,7 @@ export default function SearchPage() {
                             href={lead.website}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-indigo-400 hover:underline"
+                            className="text-indigo-600 hover:underline"
                           >
                             Siteyi Aç
                           </a>
@@ -498,7 +501,7 @@ export default function SearchPage() {
                           <span className="text-zinc-500">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-zinc-400">
+                      <td className="px-4 py-3 text-zinc-500">
                         {lead.rating
                           ? `${lead.rating} ★ (${lead.ratingsTotal ?? 0})`
                           : "—"}
