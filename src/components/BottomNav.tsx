@@ -9,10 +9,12 @@ import {
   Mail,
   MessageCircle,
   CreditCard,
-  Settings as SettingsIcon,
 } from "lucide-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
 
+// Settings is intentionally left out of the nav for now (hidden, not
+// removed) — the page at /settings still exists and works, just isn't
+// linked from here.
 const LINKS = [
   { href: "/", label: "Dashboard", icon: LayoutGrid },
   { href: "/search", label: "Search", icon: Search },
@@ -20,7 +22,6 @@ const LINKS = [
   { href: "/email", label: "Email", icon: Mail },
   { href: "/whatsapp", label: "WhatsApp", icon: MessageCircle },
   { href: "/preise", label: "Pricing", icon: CreditCard },
-  { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 export default function BottomNav() {
@@ -30,7 +31,7 @@ export default function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200 bg-white/95 backdrop-blur-xl">
-      <div className="mx-auto grid max-w-md grid-cols-7 sm:max-w-2xl">
+      <div className="mx-auto grid max-w-md grid-cols-6 sm:max-w-2xl">
         {LINKS.map((l) => {
           const Icon = l.icon;
           const active = pathname === l.href;
