@@ -46,6 +46,9 @@ export default function BulkEmailModal({
   const [language, setLanguage] = useState("tr");
   const [busy, setBusy] = useState(false);
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
+  const [campaignName, setCampaignName] = useState(
+    `Kampanya · ${new Date().toLocaleDateString("tr-TR")}`
+  );
 
   function updateDraft(id: string, patch: Partial<Draft>) {
     setDrafts((prev) => {
@@ -87,6 +90,25 @@ export default function BulkEmailModal({
 
   async function sendAll() {
     setBusy(true);
+
+    // Bu gönderim turunu bir kampanya olarak grupla — E-Mail sayfasında
+    // gönderilen/açılan/yanıtlanan istatistikleriyle listelenebilsin diye.
+    let campaignId: string | undefined;
+    try {
+      const res = await fetch("/api/campaigns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: campaignName.trim() || "İsimsiz Kampanya",
+          target: eligible.map((l) => l.city).filter(Boolean).join(", ") || null,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) campaignId = data.campaign?.id;
+    } catch {
+      // kampanya oluşturulamazsa gönderim yine de devam etsin
+    }
+
     let sentCount = 0;
     for (const lead of eligible) {
       const draft = drafts[lead.id];
@@ -101,6 +123,7 @@ export default function BulkEmailModal({
             subject: draft.subject,
             body: draft.body,
             leadId: lead.id,
+            campaignId,
           }),
         });
         const data = await res.json();
@@ -141,6 +164,15 @@ export default function BulkEmailModal({
             {skipped} firmanın e-postası olmadığı için listeye alınmadı.
           </p>
         )}
+
+        <div className="mb-3">
+          <input
+            value={campaignName}
+            onChange={(e) => setCampaignName(e.target.value)}
+            placeholder="Kampanya adı"
+            className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-indigo-400 focus:bg-white"
+          />
+        </div>
 
         <div className="mb-3 flex flex-wrap items-center gap-2">
           {TYPES.map((t) => (

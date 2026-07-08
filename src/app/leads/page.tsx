@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Mail, Globe as GlobeIcon } from "lucide-react";
 import AIAssistantPanel from "@/components/AIAssistantPanel";
 import BulkEmailModal, { BulkLead } from "@/components/BulkEmailModal";
+import ScoreRing from "@/components/ScoreRing";
 import { computeLeadScore, scoreTier, TIER_META } from "@/lib/lead-score";
 
 interface LeadRow {
@@ -97,42 +99,71 @@ function LeadCard({
         selected ? "ring-2 ring-indigo-400" : ""
       }`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <p className="flex items-center gap-1.5 font-medium text-zinc-900">
-          <input
-            type="checkbox"
-            checked={selected}
-            onChange={() => onToggleSelect(lead.id)}
-            className="h-3.5 w-3.5 rounded border-zinc-300 accent-indigo-500"
-            aria-label="Seç"
-          />
-          <button
-            type="button"
-            onClick={() => onUpdate(lead.id, { is_favorite: !lead.is_favorite })}
-            className={lead.is_favorite ? "text-amber-500" : "text-zinc-300 hover:text-amber-500"}
-            aria-label="Favori"
-          >
-            ★
-          </button>
-          {lead.name}
-        </p>
-        <select
-          value={lead.lead_status ?? "new"}
-          onChange={(e) => onUpdate(lead.id, { lead_status: e.target.value })}
-          className="rounded border border-zinc-200 bg-zinc-50 px-1 py-0.5 text-xs text-zinc-600 outline-none"
-        >
-          {STATUS_COLUMNS.map((s) => (
-            <option key={s.key} value={s.key}>
-              {s.label}
-            </option>
-          ))}
-        </select>
+      <div className="flex items-start gap-2.5">
+        <ScoreRing score={score} color={tier.ring} size={44} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <p className="flex min-w-0 items-center gap-1.5 truncate font-medium text-zinc-900">
+              <input
+                type="checkbox"
+                checked={selected}
+                onChange={() => onToggleSelect(lead.id)}
+                className="h-3.5 w-3.5 shrink-0 rounded border-zinc-300 accent-indigo-500"
+                aria-label="Seç"
+              />
+              <button
+                type="button"
+                onClick={() => onUpdate(lead.id, { is_favorite: !lead.is_favorite })}
+                className={`shrink-0 ${
+                  lead.is_favorite ? "text-amber-500" : "text-zinc-300 hover:text-amber-500"
+                }`}
+                aria-label="Favori"
+              >
+                ★
+              </button>
+              <span className="truncate">{lead.name}</span>
+            </p>
+            <select
+              value={lead.lead_status ?? "new"}
+              onChange={(e) => onUpdate(lead.id, { lead_status: e.target.value })}
+              className="shrink-0 rounded border border-zinc-200 bg-zinc-50 px-1 py-0.5 text-xs text-zinc-600 outline-none"
+            >
+              {STATUS_COLUMNS.map((s) => (
+                <option key={s.key} value={s.key}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p className="mt-0.5 truncate text-xs text-zinc-500">
+            {lead.category || "—"} · {lead.search_city || "—"}
+          </p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[11px] font-medium ${tier.badge}`}
+              title={`Lead skoru: ${score}/100`}
+            >
+              <span>{tier.icon}</span>
+              {tier.label}
+            </span>
+            {lead.email && (
+              <span
+                className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-1.5 py-0.5 text-[11px] text-zinc-600"
+                title={lead.email}
+              >
+                <Mail className="h-3 w-3" /> Mail
+              </span>
+            )}
+            {lead.website && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-1.5 py-0.5 text-[11px] text-zinc-600">
+                <GlobeIcon className="h-3 w-3" /> Web
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
-      <p className="mt-1 text-xs text-zinc-500">
-        {lead.category || "—"} · {lead.search_city || "—"}
-      </p>
-      <p className="mt-1 truncate text-xs text-zinc-500">{lead.email}</p>
+      <p className="mt-2 truncate text-xs text-zinc-500">{lead.email}</p>
       <p className="mt-1 text-xs text-zinc-500">
         {lead.phone || "—"}
         {lead.website && (
@@ -150,13 +181,6 @@ function LeadCard({
         )}
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
-        <span
-          className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium ${tier.badge}`}
-          title={`Lead skoru: ${score}/100`}
-        >
-          <span className={`h-1.5 w-1.5 rounded-full ${tier.dot}`} />
-          {tier.label} · {score}
-        </span>
         <span
           className={`inline-block rounded px-1.5 py-0.5 text-xs ${
             VERIFICATION_STYLES[lead.email_verification_status ?? "unknown"]

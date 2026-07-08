@@ -8,6 +8,14 @@ function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 export async function POST(req: NextRequest) {
   const userClient = await getSupabaseServerUserClient();
   const {
@@ -19,11 +27,12 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const { to, subject, body: emailBody, leadId } = body as {
+  const { to, subject, body: emailBody, leadId, campaignId } = body as {
     to?: string;
     subject?: string;
     body?: string;
     leadId?: string;
+    campaignId?: string;
   };
 
   if (!to || !isValidEmail(to)) {
@@ -64,6 +73,27 @@ export async function POST(req: NextRequest) {
     verifiedLeadId = leadRow?.id ?? null;
   }
 
+  // Kampanyanın bu kullanıcıya ait olduğunu doğrula (campaignId verildiyse).
+  let verifiedCampaignId: string | null = null;
+  if (campaignId && supabase) {
+    const { data: campaignRow } = await supabase
+      .from("email_campaigns")
+      .select("id")
+      .eq("id", campaignId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    verifiedCampaignId = campaignRow?.id ?? null;
+  }
+
+  // Her gönderim için tekil bir izleme token'ı üret; e-postaya gömülen
+  // 1x1 piksel açıldığında bu token üzerinden email_log güncellenir.
+  const trackToken = crypto.randomUUID();
+  const origin = new URL(req.url).origin;
+  const pixelUrl = `${origin}/api/email/track/${trackToken}`;
+  const htmlBody = `<div style="white-space:pre-wrap;font-family:sans-serif;font-size:14px;color:#18181b;">${escapeHtml(
+    emailBody
+  )}</div><img src="${pixelUrl}" width="1" height="1" alt="" style="display:none" />`;
+
   const transporter = nodemailer.createTransport({
     host,
     port,
@@ -77,6 +107,7 @@ export async function POST(req: NextRequest) {
       to,
       subject: subjectLine,
       text: emailBody,
+      html: htmlBody,
     });
   } catch (err) {
     const message = (err as Error).message || "Bilinmeyen SMTP hatası.";
@@ -108,10 +139,12 @@ export async function POST(req: NextRequest) {
       await supabase.from("email_log").insert({
         user_id: user.id,
         lead_id: verifiedLeadId,
+        campaign_id: verifiedCampaignId,
         to_email: to,
         subject: subjectLine,
         body: emailBody,
         status: "sent",
+        track_token: trackToken,
       });
     } catch {
       // logging is best-effort

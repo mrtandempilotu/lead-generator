@@ -63,23 +63,48 @@ export function computeLeadScore(lead: ScorableLead): number {
   return Math.max(0, Math.min(100, score));
 }
 
-export type ScoreTier = "hot" | "warm" | "cold";
+// 4 kademeli skor sistemi (mockup: Heiss/Warm/Kühl/Kalt). "hot" eski API'yle
+// uyumluluk için ayrı bir isim yerine "heiss" kullanıyoruz; TIER_META ve
+// scoreTier tüketen tüm yerler bu 4 anahtarı bekler.
+export type ScoreTier = "heiss" | "warm" | "kuehl" | "kalt";
 
 export function scoreTier(score: number): ScoreTier {
-  if (score >= 70) return "hot";
-  if (score >= 40) return "warm";
-  return "cold";
+  if (score >= 85) return "heiss";
+  if (score >= 60) return "warm";
+  if (score >= 40) return "kuehl";
+  return "kalt";
 }
 
 export const TIER_META: Record<
   ScoreTier,
-  { label: string; badge: string; dot: string }
+  { label: string; icon: string; badge: string; dot: string; ring: string }
 > = {
-  hot: { label: "Sıcak", badge: "bg-red-50 text-red-600", dot: "bg-red-500" },
+  heiss: {
+    label: "Heiss",
+    icon: "🔥",
+    badge: "bg-red-50 text-red-600",
+    dot: "bg-red-500",
+    ring: "#ef4444",
+  },
   warm: {
-    label: "Ilık",
+    label: "Warm",
+    icon: "☀️",
     badge: "bg-amber-50 text-amber-600",
     dot: "bg-amber-500",
+    ring: "#f59e0b",
   },
-  cold: { label: "Soğuk", badge: "bg-sky-50 text-sky-600", dot: "bg-sky-500" },
+  kuehl: {
+    label: "Kühl",
+    icon: "❄️",
+    badge: "bg-sky-50 text-sky-600",
+    dot: "bg-sky-500",
+    ring: "#38bdf8",
+  },
+  kalt: {
+    label: "Kalt",
+    icon: "📦",
+    badge: "bg-violet-50 text-violet-600",
+    dot: "bg-violet-500",
+    ring: "#a78bfa",
+  },
 };

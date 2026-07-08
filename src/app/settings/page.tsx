@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
 
 interface SettingsRow {
   apify_api_token: string | null;
@@ -58,11 +60,19 @@ function Field({
 }
 
 export default function SettingsPage() {
+  const router = useRouter();
   const [form, setForm] = useState<SettingsRow>(EMPTY);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  async function handleLogout() {
+    const supabase = getSupabaseBrowserClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
 
   useEffect(() => {
     load();
@@ -241,6 +251,18 @@ export default function SettingsPage() {
           >
             {saving ? "Kaydediliyor..." : "Kaydet"}
           </button>
+
+          <section className="glass-card rounded-2xl p-5">
+            <h2 className="mb-1 text-sm font-semibold text-zinc-900">Hesap</h2>
+            <p className="mb-4 text-xs text-zinc-500">Oturumu sonlandırın.</p>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+            >
+              Çıkış Yap
+            </button>
+          </section>
         </div>
       )}
     </main>
