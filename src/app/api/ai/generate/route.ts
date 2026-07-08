@@ -23,24 +23,24 @@ function buildPrompt(type: string, language: string, lead: LeadContext): string 
 
   const langInstruction =
     language === "de"
-      ? "Yanıtı tamamen Almanca yaz."
+      ? "Write the response entirely in German."
       : language === "en"
       ? "Write the response entirely in English."
-      : "Yanıtı tamamen Türkçe yaz.";
+      : "Write the response entirely in Turkish.";
 
-  const context = `Firma: ${companyName}, Sektör: ${industry}, Şehir: ${city}. Biz Almanya'da iş kıyafeti / uniforma (işçi kıyafeti, PPE) tedarikçisiyiz ve bu firmayla iş görüşmesi başlatmak istiyoruz.`;
+  const context = `Company: ${companyName}, Industry: ${industry}, City: ${city}. We are a supplier of workwear / uniforms (protective clothing, PPE) in Germany and want to open a business conversation with this company.`;
 
   switch (type) {
     case "cold_email":
-      return `${context}\n${langInstruction}\nBu firmaya gönderilecek kısa, kişiselleştirilmiş, profesyonel bir soğuk satış e-postası yaz (ilk temas). Firma adını ve sektörünü doğal şekilde kullan. 120-180 kelime civarı, satış dilinde ama samimi ol, net bir eylem çağrısıyla bitir. Sadece e-posta gövdesini yaz, konu satırı ekleme.`;
+      return `${context}\n${langInstruction}\nWrite a short, personalized, professional cold sales email to this company (first contact). Use the company name and industry naturally. Around 120-180 words, sales-oriented but warm in tone, end with a clear call to action. Write only the email body, no subject line.`;
     case "follow_up":
-      return `${context}\n${langInstruction}\nDaha önce bu firmaya bir soğuk e-posta gönderdik ama yanıt alamadık. Kısa, nazik bir takip e-postası yaz (60-100 kelime), baskıcı olmadan tekrar ilgi çekmeye çalış.`;
+      return `${context}\n${langInstruction}\nWe already sent this company a cold email but got no reply. Write a short, polite follow-up email (60-100 words) that re-engages interest without being pushy.`;
     case "subject_line":
-      return `${context}\n${langInstruction}\nYukarıdaki firma için soğuk e-posta konu satırı olarak kullanılabilecek 5 farklı, kısa ve dikkat çekici seçenek üret. Sadece numaralı liste olarak ver, başka açıklama ekleme.`;
+      return `${context}\n${langInstruction}\nGenerate 5 different, short, attention-grabbing subject line options that could be used for a cold email to the company above. Return only a numbered list, no other explanation.`;
     case "linkedin_message":
-      return `${context}\n${langInstruction}\nBu firmanın karar vericisine LinkedIn üzerinden gönderilecek kısa bir bağlantı isteği / ilk mesaj yaz (300 karakteri geçmesin), doğal ve samimi olsun, satış gibi hissettirmesin.`;
+      return `${context}\n${langInstruction}\nWrite a short LinkedIn connection request / first message (under 300 characters) to this company's decision maker. Keep it natural and warm, not salesy.`;
     default:
-      return `${context}\n${langInstruction}\nBu firma için kısa bir tanıtım mesajı yaz.`;
+      return `${context}\n${langInstruction}\nWrite a short introductory message for this company.`;
   }
 }
 
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
   } = await userClient.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Giriş yapmanız gerekiyor." }, { status: 401 });
+    return NextResponse.json({ error: "You need to sign in." }, { status: 401 });
   }
 
   const settings = await getUserSettings(user.id);
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "OpenRouter API anahtarı tanımlı değil. Ayarlar sayfasından kendi anahtarınızı girin ya da sunucu ortam değişkenini (OPENROUTER_API_KEY) ayarlayın.",
+          "No OpenRouter API key is set. Enter your own key on the Settings page or set the server environment variable (OPENROUTER_API_KEY).",
       },
       { status: 500 }
     );
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
   };
 
   if (!type || !language || !VALID_TYPES.includes(type) || !VALID_LANGS.includes(language)) {
-    return NextResponse.json({ error: "Geçersiz istek." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
   const prompt = buildPrompt(type, language, lead ?? {});
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
     if (!res.ok) {
       const text = await res.text();
       return NextResponse.json(
-        { error: `OpenRouter hatası (${res.status}): ${text.slice(0, 300)}` },
+        { error: `OpenRouter error (${res.status}): ${text.slice(0, 300)}` },
         { status: 502 }
       );
     }
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ text });
   } catch (err) {
     return NextResponse.json(
-      { error: `Beklenmeyen hata: ${(err as Error).message}` },
+      { error: `Unexpected error: ${(err as Error).message}` },
       { status: 500 }
     );
   }

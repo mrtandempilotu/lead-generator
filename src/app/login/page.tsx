@@ -42,7 +42,7 @@ export default function LoginPage() {
       return;
     }
     setMessage(
-      "Hesap oluşturuldu. Doğrulama e-postası gerekmiyorsa doğrudan giriş yapabilirsiniz."
+      "Account created. If email verification isn't required, you can sign in right away."
     );
     setLoading(false);
   }
@@ -54,13 +54,13 @@ export default function LoginPage() {
           BerlinLead <span className="text-indigo-600">AI</span>
         </h1>
         <p className="mb-6 text-sm text-zinc-500">
-          {mode === "login" ? "Hesabınıza giriş yapın" : "Yeni hesap oluşturun"}
+          {mode === "login" ? "Sign in to your account" : "Create a new account"}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="mb-1 block text-xs font-medium text-zinc-500">
-              E-posta
+              Email
             </label>
             <input
               type="email"
@@ -72,7 +72,7 @@ export default function LoginPage() {
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-zinc-500">
-              Şifre
+              Password
             </label>
             <input
               type="password"
@@ -92,7 +92,7 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-400 disabled:opacity-50"
           >
-            {loading ? "Bekleyin..." : mode === "login" ? "Giriş Yap" : "Kayıt Ol"}
+            {loading ? "Please wait..." : mode === "login" ? "Sign In" : "Sign Up"}
           </button>
         </form>
 
@@ -106,8 +106,8 @@ export default function LoginPage() {
           className="mt-4 w-full text-center text-xs text-zinc-500 transition hover:text-zinc-800"
         >
           {mode === "login"
-            ? "Hesabın yok mu? Kayıt ol"
-            : "Zaten hesabın var mı? Giriş yap"}
+            ? "Don't have an account? Sign up"
+            : "Already have an account? Sign in"}
         </button>
       </div>
     </div>

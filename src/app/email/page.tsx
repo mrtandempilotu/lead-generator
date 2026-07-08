@@ -32,12 +32,12 @@ export default function EmailPage() {
       const res = await fetch("/api/campaigns");
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Kampanyalar yüklenemedi.");
+        setError(data.error ?? "Failed to load campaigns.");
         return;
       }
       setCampaigns(data.campaigns ?? []);
     } catch {
-      setError("Kampanyalar yüklenirken bir hata oluştu.");
+      setError("An error occurred while loading campaigns.");
     } finally {
       setLoading(false);
     }
@@ -65,9 +65,9 @@ export default function EmailPage() {
   return (
     <main className="mx-auto max-w-md px-4 py-6 sm:max-w-2xl">
       <header className="mb-6 animate-fade-in-up">
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">E-Mail Kampagnen</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Email Campaigns</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Toplu AI e-posta gönderimlerinizin performansı.
+          Performance of your bulk AI email sends.
         </p>
       </header>
 
@@ -75,10 +75,10 @@ export default function EmailPage() {
         href="/leads"
         className="mb-6 flex animate-fade-in-up items-center justify-center gap-2 rounded-2xl border border-dashed border-indigo-300 bg-indigo-50/50 px-4 py-3 text-sm font-medium text-indigo-600 transition hover:bg-indigo-50"
       >
-        <Plus className="h-4 w-4" /> Leads&apos;ten yeni kampanya başlat
+        <Plus className="h-4 w-4" /> Start a new campaign from Leads
       </Link>
 
-      {loading && <p className="text-sm text-zinc-500">Yükleniyor...</p>}
+      {loading && <p className="text-sm text-zinc-500">Loading...</p>}
       {error && (
         <p className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600">
           {error}
@@ -87,8 +87,8 @@ export default function EmailPage() {
 
       {!loading && !error && campaigns.length === 0 && (
         <div className="glass-card animate-fade-in-up rounded-2xl p-6 text-sm text-zinc-500">
-          Henüz bir kampanya yok. Leads sayfasından firma seçip &quot;Toplu AI
-          E-posta&quot; ile ilk kampanyanızı başlatın.
+          No campaigns yet. Select companies on the Leads page and use
+          &quot;Bulk AI Email&quot; to start your first campaign.
         </div>
       )}
 
@@ -99,10 +99,10 @@ export default function EmailPage() {
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-zinc-900">{c.name}</p>
                 {c.target && (
-                  <p className="truncate text-xs text-zinc-500">Ziel: {c.target}</p>
+                  <p className="truncate text-xs text-zinc-500">Target: {c.target}</p>
                 )}
                 <p className="text-[11px] text-zinc-400">
-                  {new Date(c.created_at).toLocaleDateString("tr-TR")}
+                  {new Date(c.created_at).toLocaleDateString("en-US")}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-2">
@@ -113,14 +113,14 @@ export default function EmailPage() {
                       : "bg-amber-50 text-amber-600"
                   }`}
                 >
-                  {c.status === "active" ? "● Aktiv" : "⏸ Pausiert"}
+                  {c.status === "active" ? "● Active" : "⏸ Paused"}
                 </span>
                 <button
                   type="button"
                   onClick={() => toggleStatus(c)}
                   disabled={busyId === c.id}
                   className="flex h-7 w-7 items-center justify-center rounded-lg border border-zinc-200 text-zinc-600 transition hover:bg-zinc-100 disabled:opacity-50"
-                  aria-label={c.status === "active" ? "Duraklat" : "Devam ettir"}
+                  aria-label={c.status === "active" ? "Pause" : "Resume"}
                 >
                   {c.status === "active" ? (
                     <Pause className="h-3.5 w-3.5" />
@@ -134,19 +134,19 @@ export default function EmailPage() {
             <div className="mb-3 grid grid-cols-3 gap-2 text-center">
               <div className="rounded-lg bg-zinc-50 py-2">
                 <p className="text-sm font-semibold text-zinc-900">{c.sent}</p>
-                <p className="text-[10px] text-zinc-500">Versendet</p>
+                <p className="text-[10px] text-zinc-500">Sent</p>
               </div>
               <div className="rounded-lg bg-zinc-50 py-2">
-                <p className="text-sm font-semibold text-sky-600">%{c.openRate}</p>
-                <p className="text-[10px] text-zinc-500">Geöffnet</p>
+                <p className="text-sm font-semibold text-sky-600">{c.openRate}%</p>
+                <p className="text-[10px] text-zinc-500">Opened</p>
               </div>
               <div className="rounded-lg bg-zinc-50 py-2">
-                <p className="text-sm font-semibold text-emerald-600">%{c.replyRate}</p>
-                <p className="text-[10px] text-zinc-500">Antwort</p>
+                <p className="text-sm font-semibold text-emerald-600">{c.replyRate}%</p>
+                <p className="text-[10px] text-zinc-500">Replied</p>
               </div>
             </div>
 
-            <p className="mb-1 text-[11px] text-zinc-500">Trichter</p>
+            <p className="mb-1 text-[11px] text-zinc-500">Funnel</p>
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
               <div
                 className="h-full rounded-full bg-indigo-500"

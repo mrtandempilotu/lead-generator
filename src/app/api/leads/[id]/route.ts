@@ -24,7 +24,7 @@ export async function PATCH(
   } = await userClient.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Giriş yapmanız gerekiyor." }, { status: 401 });
+    return NextResponse.json({ error: "You need to sign in." }, { status: 401 });
   }
 
   const body = await req.json().catch(() => ({}));
@@ -32,7 +32,7 @@ export async function PATCH(
 
   if (typeof body.lead_status === "string") {
     if (!VALID_STATUSES.includes(body.lead_status)) {
-      return NextResponse.json({ error: "Geçersiz durum." }, { status: 400 });
+      return NextResponse.json({ error: "Invalid status." }, { status: 400 });
     }
     updates.lead_status = body.lead_status;
   }
@@ -44,12 +44,12 @@ export async function PATCH(
   if (typeof body.is_favorite === "boolean") updates.is_favorite = body.is_favorite;
 
   if (Object.keys(updates).length === 0) {
-    return NextResponse.json({ error: "Güncellenecek alan yok." }, { status: 400 });
+    return NextResponse.json({ error: "No fields to update." }, { status: 400 });
   }
 
   const supabase = getSupabaseServerClient();
   if (!supabase) {
-    return NextResponse.json({ error: "Supabase yapılandırılmamış." }, { status: 500 });
+    return NextResponse.json({ error: "Supabase is not configured." }, { status: 500 });
   }
 
   const { data, error } = await supabase

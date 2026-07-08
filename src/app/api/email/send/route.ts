@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
   } = await userClient.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Giriş yapmanız gerekiyor." }, { status: 401 });
+    return NextResponse.json({ error: "You need to sign in." }, { status: 401 });
   }
 
   const body = await req.json().catch(() => ({}));
@@ -36,10 +36,10 @@ export async function POST(req: NextRequest) {
   };
 
   if (!to || !isValidEmail(to)) {
-    return NextResponse.json({ error: "Geçerli bir alıcı e-postası gerekli." }, { status: 400 });
+    return NextResponse.json({ error: "A valid recipient email is required." }, { status: 400 });
   }
   if (!emailBody || !emailBody.trim()) {
-    return NextResponse.json({ error: "E-posta içeriği boş olamaz." }, { status: 400 });
+    return NextResponse.json({ error: "Email content cannot be empty." }, { status: 400 });
   }
 
   const settings = await getUserSettings(user.id);
@@ -52,13 +52,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "SMTP bilgileri eksik. Ayarlar sayfasından SMTP sunucu, port, kullanıcı ve şifre alanlarını doldurun.",
+          "SMTP details are missing. Fill in the SMTP host, port, username, and password fields on the Settings page.",
       },
       { status: 400 }
     );
   }
 
-  const subjectLine = (subject || "").trim() || "(konu yok)";
+  const subjectLine = (subject || "").trim() || "(no subject)";
   const supabase = getSupabaseServerClient();
 
   // Alıcı lead'in bu kullanıcıya ait olduğunu doğrula (leadId verildiyse).
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
       html: htmlBody,
     });
   } catch (err) {
-    const message = (err as Error).message || "Bilinmeyen SMTP hatası.";
+    const message = (err as Error).message || "Unknown SMTP error.";
     // Başarısız gönderimi de logla (best-effort).
     if (supabase) {
       try {
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
       }
     }
     return NextResponse.json(
-      { error: `E-posta gönderilemedi: ${message}` },
+      { error: `Failed to send email: ${message}` },
       { status: 502 }
     );
   }

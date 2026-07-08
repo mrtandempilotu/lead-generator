@@ -26,16 +26,16 @@ interface Lead {
 }
 
 const SECTOR_SUGGESTIONS = [
-  "Otel",
-  "Restoran",
-  "İnşaat firması",
-  "Fabrika",
-  "Temizlik şirketi",
-  "Nakliye ve lojistik firması",
-  "Oto servisi",
-  "Gıda üretim tesisi",
-  "Hastane / klinik",
-  "Depo ve lojistik merkezi",
+  "Hotel",
+  "Restaurant",
+  "Construction company",
+  "Factory",
+  "Cleaning company",
+  "Transport & logistics company",
+  "Auto repair shop",
+  "Food production facility",
+  "Hospital / clinic",
+  "Warehouse & logistics center",
 ];
 
 const CITY_SUGGESTIONS = [
@@ -52,11 +52,11 @@ const CITY_SUGGESTIONS = [
 ];
 
 const VERIFICATION_LABELS: Record<string, string> = {
-  valid: "Geçerli",
-  risky: "Riskli",
+  valid: "Valid",
+  risky: "Risky",
   catchall: "Catch-all",
-  invalid: "Geçersiz",
-  unknown: "Bilinmiyor",
+  invalid: "Invalid",
+  unknown: "Unknown",
 };
 
 const VERIFICATION_STYLES: Record<string, string> = {
@@ -69,16 +69,16 @@ const VERIFICATION_STYLES: Record<string, string> = {
 
 function exportRows(leads: Lead[]) {
   return leads.map((l) => ({
-    "Firma Adı": l.name,
-    Kategori: l.category,
-    Adres: l.address,
-    Telefon: l.phone,
-    "E-posta": l.email,
-    "E-posta Durumu": VERIFICATION_LABELS[l.emailVerificationStatus ?? "unknown"],
+    "Company Name": l.name,
+    Category: l.category,
+    Address: l.address,
+    Phone: l.phone,
+    Email: l.email,
+    "Email Status": VERIFICATION_LABELS[l.emailVerificationStatus ?? "unknown"],
     Website: l.website,
-    Puan: l.rating ?? "",
-    "Değerlendirme Sayısı": l.ratingsTotal ?? "",
-    Durum: l.closed ? "Kapalı" : "Açık",
+    Rating: l.rating ?? "",
+    "Review Count": l.ratingsTotal ?? "",
+    Status: l.closed ? "Closed" : "Open",
   }));
 }
 
@@ -180,7 +180,7 @@ export default function SearchPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? "Bilinmeyen bir hata oluştu.");
+        setError(data.error ?? "An unknown error occurred.");
         setLoading(false);
         return;
       }
@@ -188,7 +188,7 @@ export default function SearchPage() {
       setLeads(data.results);
       setHasSearched(true);
     } catch {
-      setError("İstek gönderilirken bir hata oluştu.");
+      setError("An error occurred while sending the request.");
     } finally {
       setLoading(false);
     }
@@ -197,7 +197,7 @@ export default function SearchPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!keyword.trim() || !city.trim()) {
-      setError("Lütfen sektör/anahtar kelime ve şehir girin.");
+      setError("Please enter an industry/keyword and a city.");
       return;
     }
     runSearch();
@@ -255,18 +255,18 @@ export default function SearchPage() {
     <main className="mx-auto max-w-5xl px-6 py-12">
       <header className="mb-8 animate-fade-in-up">
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">
-          Firma Ara
+          Search Companies
         </h1>
         <p className="mt-2 text-zinc-500">
-          İş kıyafeti / uniforma satın alma potansiyeli olan firmaları (otel,
-          restoran, fabrika, inşaat vb.) Almanya genelinde arayın.
+          Search for companies across Germany with potential to buy work
+          clothing / uniforms (hotels, restaurants, factories, construction, etc.).
         </p>
       </header>
 
       {savedSearches.length > 0 && (
         <div className="mb-6 animate-fade-in-up">
           <p className="mb-2 text-xs font-medium text-zinc-500">
-            Kayıtlı Aramalar
+            Saved Searches
           </p>
           <div className="flex flex-wrap gap-2">
             {savedSearches.map((s) => (
@@ -285,7 +285,7 @@ export default function SearchPage() {
                   type="button"
                   onClick={() => deleteSavedSearch(s.id)}
                   className="text-zinc-500 hover:text-red-600"
-                  aria-label="Sil"
+                  aria-label="Delete"
                 >
                   ✕
                 </button>
@@ -302,13 +302,13 @@ export default function SearchPage() {
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
             <label className="mb-1 block text-sm font-medium text-zinc-500">
-              Sektör / Anahtar Kelime
+              Industry / Keyword
             </label>
             <input
               list="sector-suggestions"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              placeholder="örn. otel, inşaat firması, fabrika"
+              placeholder="e.g. hotel, construction company, factory"
               className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-indigo-400 focus:bg-white"
             />
             <datalist id="sector-suggestions">
@@ -319,13 +319,13 @@ export default function SearchPage() {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-zinc-500">
-              Şehir (Almanya)
+              City (Germany)
             </label>
             <input
               list="city-suggestions"
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              placeholder="örn. Berlin, München"
+              placeholder="e.g. Berlin, Munich"
               className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-indigo-400 focus:bg-white"
             />
             <datalist id="city-suggestions">
@@ -336,7 +336,7 @@ export default function SearchPage() {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-zinc-500">
-              Maksimum Sonuç
+              Max Results
             </label>
             <input
               type="number"
@@ -357,7 +357,7 @@ export default function SearchPage() {
               onChange={(e) => setWebsiteOnly(e.target.checked)}
               className="h-4 w-4 rounded border-zinc-300 bg-white accent-indigo-500"
             />
-            Sadece website olanlar
+            Website only
           </label>
           <label className="flex items-center gap-2 text-sm text-zinc-600">
             <input
@@ -366,7 +366,7 @@ export default function SearchPage() {
               onChange={(e) => setPhoneOnly(e.target.checked)}
               className="h-4 w-4 rounded border-zinc-300 bg-white accent-indigo-500"
             />
-            Sadece telefon olanlar
+            Phone only
           </label>
           <label className="flex items-center gap-2 text-sm text-zinc-600">
             <input
@@ -375,7 +375,7 @@ export default function SearchPage() {
               onChange={(e) => setVerifiedOnly(e.target.checked)}
               className="h-4 w-4 rounded border-zinc-300 bg-white accent-indigo-500"
             />
-            Sadece doğrulanmış e-posta
+            Verified email only
           </label>
         </div>
 
@@ -385,7 +385,7 @@ export default function SearchPage() {
             disabled={loading}
             className="rounded-lg bg-indigo-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-indigo-400 disabled:opacity-50"
           >
-            {loading ? "Aranıyor... (biraz sürebilir)" : "Firma Ara"}
+            {loading ? "Searching... (may take a moment)" : "Search"}
           </button>
           <button
             type="button"
@@ -393,7 +393,7 @@ export default function SearchPage() {
             disabled={savingSearch || !keyword.trim() || !city.trim()}
             className="rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 disabled:opacity-50"
           >
-            {savingSearch ? "Kaydediliyor..." : "Aramayı Kaydet"}
+            {savingSearch ? "Saving..." : "Save Search"}
           </button>
           {leads.length > 0 && (
             <>
@@ -429,21 +429,21 @@ export default function SearchPage() {
         <div className="glass-card animate-fade-in-up overflow-hidden rounded-2xl">
           {leads.length === 0 ? (
             <p className="p-6 text-sm text-zinc-500">
-              Sonuç bulunamadı. Farklı bir sektör, şehir veya filtre deneyin.
+              No results found. Try a different industry, city, or filter.
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="border-b border-zinc-200 bg-zinc-50 text-zinc-500">
                   <tr>
-                    <th className="px-4 py-3 font-medium">Firma Adı</th>
-                    <th className="px-4 py-3 font-medium">Kategori</th>
-                    <th className="px-4 py-3 font-medium">Adres</th>
-                    <th className="px-4 py-3 font-medium">Telefon</th>
-                    <th className="px-4 py-3 font-medium">E-posta</th>
-                    <th className="px-4 py-3 font-medium">Durum</th>
+                    <th className="px-4 py-3 font-medium">Company Name</th>
+                    <th className="px-4 py-3 font-medium">Category</th>
+                    <th className="px-4 py-3 font-medium">Address</th>
+                    <th className="px-4 py-3 font-medium">Phone</th>
+                    <th className="px-4 py-3 font-medium">Email</th>
+                    <th className="px-4 py-3 font-medium">Status</th>
                     <th className="px-4 py-3 font-medium">Website</th>
-                    <th className="px-4 py-3 font-medium">Puan</th>
+                    <th className="px-4 py-3 font-medium">Rating</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -456,7 +456,7 @@ export default function SearchPage() {
                         {lead.name}
                         {lead.closed && (
                           <span className="ml-2 rounded bg-red-50 px-1.5 py-0.5 text-xs text-red-600">
-                            Kapalı
+                            Closed
                           </span>
                         )}
                       </td>
@@ -495,7 +495,7 @@ export default function SearchPage() {
                             rel="noopener noreferrer"
                             className="text-indigo-600 hover:underline"
                           >
-                            Siteyi Aç
+                            Visit Site
                           </a>
                         ) : (
                           <span className="text-zinc-500">—</span>

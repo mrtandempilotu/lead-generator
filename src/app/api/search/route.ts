@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
   } = await userClient.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Giriş yapmanız gerekiyor." }, { status: 401 });
+    return NextResponse.json({ error: "You need to sign in." }, { status: 401 });
   }
 
   // A user's own API keys (set on the Settings page) take priority over the
@@ -171,7 +171,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "Apify API anahtarı tanımlı değil. Ayarlar sayfasından kendi anahtarınızı girin ya da sunucu ortam değişkenini (APIFY_API_TOKEN) ayarlayın.",
+          "No Apify API key is set. Enter your own key on the Settings page or set the server environment variable (APIFY_API_TOKEN).",
       },
       { status: 500 }
     );
@@ -191,14 +191,14 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: "Geçersiz istek gövdesi." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
   const { keyword, city, maxResults, filters = {} } = body;
 
   if (!keyword || !city) {
     return NextResponse.json(
-      { error: "keyword ve city alanları zorunludur." },
+      { error: "The keyword and city fields are required." },
       { status: 400 }
     );
   }
@@ -232,7 +232,7 @@ export async function POST(req: NextRequest) {
     if (!res.ok) {
       const text = await res.text();
       return NextResponse.json(
-        { error: `Apify API hatası (${res.status}): ${text.slice(0, 300)}` },
+        { error: `Apify API error (${res.status}): ${text.slice(0, 300)}` },
         { status: 502 }
       );
     }
@@ -349,7 +349,7 @@ export async function POST(req: NextRequest) {
         }));
         await supabase.from("leads").upsert(rows, { onConflict: "user_id,place_id" });
       } catch (err) {
-        console.error("Supabase kaydı başarısız oldu:", err);
+        console.error("Supabase insert failed:", err);
       }
     }
 
@@ -363,14 +363,14 @@ export async function POST(req: NextRequest) {
           result_count: results.length,
         });
       } catch (err) {
-        console.error("Arama geçmişi kaydı başarısız oldu:", err);
+        console.error("Search history insert failed:", err);
       }
     }
 
     return NextResponse.json({ results });
   } catch (err) {
     return NextResponse.json(
-      { error: `Beklenmeyen hata: ${(err as Error).message}` },
+      { error: `Unexpected error: ${(err as Error).message}` },
       { status: 500 }
     );
   }

@@ -9,7 +9,7 @@ import { computeLeadScore, scoreTier } from "@/lib/lead-score";
 export const metadata: Metadata = {
   title: "BerlinLead AI",
   description:
-    "Almanya'da doğrulanmış e-postalı B2B lead'ler bulun ve yönetin.",
+    "Find and manage B2B leads with verified emails across Germany.",
 };
 
 export default async function RootLayout({
@@ -22,8 +22,8 @@ export default async function RootLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Başlıktaki zil ikonundaki bildirim noktası: en az bir "Heiss" lead varsa
-  // gösterilir (gerçek veriden — sahte bir bayrak değil).
+  // Notification dot on the header bell icon: shown when there's at least one
+  // "Hot" lead (from real data — not a fake flag).
   let hasNotification = false;
   if (user) {
     const serviceClient = getSupabaseServerClient();
@@ -40,7 +40,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="tr" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col bg-slate-50 font-sans text-zinc-900">
         <Header userEmail={user?.email ?? null} hasNotification={hasNotification} />
         <div className="flex-1 pb-24">{children}</div>

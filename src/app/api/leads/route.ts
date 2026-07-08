@@ -9,7 +9,7 @@ export async function GET() {
   } = await userClient.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Giriş yapmanız gerekiyor." }, { status: 401 });
+    return NextResponse.json({ error: "You need to sign in." }, { status: 401 });
   }
 
   const supabase = getSupabaseServerClient();
@@ -18,7 +18,7 @@ export async function GET() {
     return NextResponse.json(
       {
         error:
-          "Supabase yapılandırılmamış. .env.local dosyasına NEXT_PUBLIC_SUPABASE_URL ve SUPABASE_SERVICE_ROLE_KEY ekleyin.",
+          "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to .env.local.",
       },
       { status: 500 }
     );

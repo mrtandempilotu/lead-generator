@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   } = await userClient.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Giriş yapmanız gerekiyor." }, { status: 401 });
+    return NextResponse.json({ error: "You need to sign in." }, { status: 401 });
   }
 
   const body = await req.json().catch(() => ({}));
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   const count = Number(body.count) || 0;
 
   if (!VALID_FORMATS.includes(format)) {
-    return NextResponse.json({ error: "Geçersiz format." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid format." }, { status: 400 });
   }
 
   const supabase = getSupabaseServerClient();
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
         count,
       });
     } catch (err) {
-      console.error("Export log kaydı başarısız oldu:", err);
+      console.error("Export log insert failed:", err);
     }
   }
 

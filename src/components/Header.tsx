@@ -32,7 +32,7 @@ export default function Header({
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-600">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-            Aktiv
+            Active
           </span>
           <span className="relative text-zinc-500">
             <Bell className="h-5 w-5" />

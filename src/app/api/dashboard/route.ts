@@ -7,12 +7,12 @@ const RESPONDED_STATUSES = ["interested", "meeting", "negotiation", "won"];
 const DEAL_READY_STATUSES = ["negotiation", "won"];
 
 const STATUS_LABELS: Record<string, string> = {
-  contacted: "İletişime Geçildi",
-  interested: "İlgileniyor",
-  meeting: "Toplantı",
-  negotiation: "Görüşme",
-  won: "Kazanıldı",
-  lost: "Kaybedildi",
+  contacted: "Contacted",
+  interested: "Interested",
+  meeting: "Meeting",
+  negotiation: "Negotiation",
+  won: "Won",
+  lost: "Lost",
 };
 
 interface ActivityItem {
@@ -29,13 +29,13 @@ export async function GET() {
   } = await userClient.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Giriş yapmanız gerekiyor." }, { status: 401 });
+    return NextResponse.json({ error: "You need to sign in." }, { status: 401 });
   }
 
   const supabase = getSupabaseServerClient();
   if (!supabase) {
     return NextResponse.json(
-      { error: "Supabase yapılandırılmamış." },
+      { error: "Supabase is not configured." },
       { status: 500 }
     );
   }
@@ -70,9 +70,9 @@ export async function GET() {
   const scored = rows.map((l) => ({ ...l, score: computeLeadScore(l), tier: scoreTier(computeLeadScore(l)) }));
 
   for (const l of rows) {
-    const industry = l.category || "Diğer";
+    const industry = l.category || "Other";
     byIndustryMap[industry] = (byIndustryMap[industry] ?? 0) + 1;
-    const city = l.search_city || "Bilinmiyor";
+    const city = l.search_city || "Unknown";
     byCityMap[city] = (byCityMap[city] ?? 0) + 1;
     const status = l.email_verification_status || "unknown";
     byVerificationMap[status] = (byVerificationMap[status] ?? 0) + 1;
@@ -128,27 +128,27 @@ export async function GET() {
   }
 
   const funnel = [
-    { key: "found", label: "Kontakte gefunden", count: totalCompanies, rate: 100 },
-    { key: "opened", label: "E-Mail geöffnet", count: emailsOpened, rate: rate(emailsOpened) },
-    { key: "responded", label: "Geantwortet", count: respondedCount, rate: rate(respondedCount) },
-    { key: "whatsapp", label: "WhatsApp-Gespräch", count: 0, rate: 0 },
-    { key: "dealReady", label: "Abschluss-bereit", count: dealReadyCount, rate: rate(dealReadyCount) },
+    { key: "found", label: "Contacts found", count: totalCompanies, rate: 100 },
+    { key: "opened", label: "Email opened", count: emailsOpened, rate: rate(emailsOpened) },
+    { key: "responded", label: "Responded", count: respondedCount, rate: rate(respondedCount) },
+    { key: "whatsapp", label: "WhatsApp conversation", count: 0, rate: 0 },
+    { key: "dealReady", label: "Deal-ready", count: dealReadyCount, rate: rate(dealReadyCount) },
   ];
 
-  // --- Live-Aktivitäten: gerçek olaylardan birleştirilmiş akış ---
+  // --- Live Activity: a merged stream built from real events ---
   const activity: ActivityItem[] = [];
 
   for (const s of (searchHistory ?? []).slice(0, 5)) {
     activity.push({
       id: `search-${s.id}`,
       icon: "🔍",
-      text: `${s.keyword} · ${s.city} araması — ${s.result_count} firma bulundu`,
+      text: `${s.keyword} · ${s.city} search — ${s.result_count} companies found`,
       time: s.created_at,
     });
   }
 
-  // Gönderilen e-postaları kampanya + gün bazında grupla (mockup'taki
-  // "147 personalisierte E-Mails versendet" tarzı tekil satır için).
+  // Group sent emails by campaign + day (so a batch send shows as a single
+  // "N personalized emails sent" activity line).
   const emailGroups = new Map<string, { count: number; time: string; campaignId: string | null }>();
   for (const e of sentEmails) {
     const day = e.created_at.slice(0, 10);
@@ -166,8 +166,8 @@ export async function GET() {
     activity.push({
       id: `email-${key}`,
       icon: "📧",
-      text: `${g.count} personalisierte E-Mail${g.count > 1 ? "s" : ""} versendet${
-        campaignName ? ` — Kampagne: ${campaignName}` : ""
+      text: `${g.count} personalized email${g.count > 1 ? "s" : ""} sent${
+        campaignName ? ` — Campaign: ${campaignName}` : ""
       }`,
       time: g.time,
     });
@@ -177,7 +177,7 @@ export async function GET() {
     activity.push({
       id: `hot-${l.id}`,
       icon: "🔥",
-      text: `${l.name} — Score ${l.score} ile 'Heiss' lead olarak işaretlendi`,
+      text: `${l.name} — marked as a 'Hot' lead with score ${l.score}`,
       time: l.created_at,
     });
   }
@@ -187,7 +187,7 @@ export async function GET() {
       activity.push({
         id: `status-${l.id}`,
         icon: "💬",
-        text: `${l.name} — durum '${STATUS_LABELS[l.lead_status ?? ""] ?? l.lead_status}' olarak güncellendi`,
+        text: `${l.name} — status updated to '${STATUS_LABELS[l.lead_status ?? ""] ?? l.lead_status}'`,
         time: l.updated_at,
       });
     }

@@ -11,12 +11,12 @@ export async function GET() {
   } = await userClient.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Giriş yapmanız gerekiyor." }, { status: 401 });
+    return NextResponse.json({ error: "You need to sign in." }, { status: 401 });
   }
 
   const supabase = getSupabaseServerClient();
   if (!supabase) {
-    return NextResponse.json({ error: "Supabase yapılandırılmamış." }, { status: 500 });
+    return NextResponse.json({ error: "Supabase is not configured." }, { status: 500 });
   }
 
   const { data, error } = await supabase
@@ -39,7 +39,7 @@ export async function PATCH(req: NextRequest) {
   } = await userClient.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Giriş yapmanız gerekiyor." }, { status: 401 });
+    return NextResponse.json({ error: "You need to sign in." }, { status: 401 });
   }
 
   const body = await req.json().catch(() => ({}));
@@ -55,7 +55,7 @@ export async function PATCH(req: NextRequest) {
   } = body as Record<string, unknown>;
 
   if (language !== undefined && !ALLOWED_LANGUAGES.includes(language as string)) {
-    return NextResponse.json({ error: "Geçersiz dil değeri." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid language value." }, { status: 400 });
   }
 
   const updates: Record<string, unknown> = { user_id: user.id };
@@ -73,7 +73,7 @@ export async function PATCH(req: NextRequest) {
 
   const supabase = getSupabaseServerClient();
   if (!supabase) {
-    return NextResponse.json({ error: "Supabase yapılandırılmamış." }, { status: 500 });
+    return NextResponse.json({ error: "Supabase is not configured." }, { status: 500 });
   }
 
   const { data, error } = await supabase

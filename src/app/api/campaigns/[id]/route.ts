@@ -13,19 +13,19 @@ export async function PATCH(
   } = await userClient.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Giriş yapmanız gerekiyor." }, { status: 401 });
+    return NextResponse.json({ error: "You need to sign in." }, { status: 401 });
   }
 
   const body = await req.json().catch(() => ({}));
   const { status } = body as { status?: string };
 
   if (status !== "active" && status !== "paused") {
-    return NextResponse.json({ error: "Geçersiz durum." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid status." }, { status: 400 });
   }
 
   const supabase = getSupabaseServerClient();
   if (!supabase) {
-    return NextResponse.json({ error: "Supabase yapılandırılmamış." }, { status: 500 });
+    return NextResponse.json({ error: "Supabase is not configured." }, { status: 500 });
   }
 
   const { error } = await supabase

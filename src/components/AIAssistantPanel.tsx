@@ -11,19 +11,19 @@ interface LeadContext {
 }
 
 const TYPES: { key: string; label: string }[] = [
-  { key: "cold_email", label: "Soğuk E-posta" },
-  { key: "follow_up", label: "Takip E-postası" },
-  { key: "subject_line", label: "Konu Satırı" },
-  { key: "linkedin_message", label: "LinkedIn Mesajı" },
+  { key: "cold_email", label: "Cold Email" },
+  { key: "follow_up", label: "Follow-up Email" },
+  { key: "subject_line", label: "Subject Line" },
+  { key: "linkedin_message", label: "LinkedIn Message" },
 ];
 
 const LANGUAGES: { key: string; label: string }[] = [
-  { key: "tr", label: "Türkçe" },
   { key: "en", label: "English" },
   { key: "de", label: "Deutsch" },
+  { key: "tr", label: "Türkçe" },
 ];
 
-// Bu tiplerde üretilen çıktı e-posta gövdesidir; doğrudan gönderilebilir.
+// The output generated for these types is an email body that can be sent directly.
 const SENDABLE_TYPES = new Set(["cold_email", "follow_up"]);
 
 export default function AIAssistantPanel({
@@ -34,7 +34,7 @@ export default function AIAssistantPanel({
   onClose: () => void;
 }) {
   const [type, setType] = useState("cold_email");
-  const [language, setLanguage] = useState("tr");
+  const [language, setLanguage] = useState("en");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState("");
@@ -59,15 +59,15 @@ export default function AIAssistantPanel({
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Bilinmeyen bir hata oluştu.");
+        setError(data.error ?? "An unknown error occurred.");
         return;
       }
       setResult(data.text);
       if (SENDABLE_TYPES.has(type) && !subject) {
-        setSubject(`${lead.name ?? "Firmanız"} için iş birliği`);
+        setSubject(`Collaboration opportunity with ${lead.name ?? "your company"}`);
       }
     } catch {
-      setError("İstek gönderilirken bir hata oluştu.");
+      setError("An error occurred while sending the request.");
     } finally {
       setLoading(false);
     }
@@ -96,12 +96,12 @@ export default function AIAssistantPanel({
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "E-posta gönderilemedi.");
+        setError(data.error ?? "Failed to send email.");
         return;
       }
-      setSendMsg(`E-posta ${lead.email} adresine gönderildi.`);
+      setSendMsg(`Email sent to ${lead.email}.`);
     } catch {
-      setError("E-posta gönderilirken bir hata oluştu.");
+      setError("An error occurred while sending the email.");
     } finally {
       setSending(false);
     }
@@ -111,7 +111,7 @@ export default function AIAssistantPanel({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/50 px-4">
       <div className="glass-card w-full max-w-lg rounded-2xl bg-white p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-zinc-900">AI Asistan</h2>
+          <h2 className="text-lg font-semibold text-zinc-900">AI Assistant</h2>
           <button
             onClick={onClose}
             className="text-zinc-400 transition hover:text-zinc-900"
@@ -121,7 +121,7 @@ export default function AIAssistantPanel({
         </div>
 
         <p className="mb-4 text-sm text-zinc-500">
-          {lead.name ?? "Bu firma"} için mesaj oluştur.
+          Create a message for {lead.name ?? "this company"}.
           {lead.email && (
             <span className="text-zinc-400"> · {lead.email}</span>
           )}
@@ -167,7 +167,7 @@ export default function AIAssistantPanel({
           disabled={loading}
           className="mb-4 w-full rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-400 disabled:opacity-50"
         >
-          {loading ? "Oluşturuluyor..." : "Oluştur"}
+          {loading ? "Generating..." : "Generate"}
         </button>
 
         {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
@@ -183,7 +183,7 @@ export default function AIAssistantPanel({
               <input
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                placeholder="E-posta konusu"
+                placeholder="Email subject"
                 className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none focus:border-indigo-400 focus:bg-white"
               />
             )}
@@ -199,7 +199,7 @@ export default function AIAssistantPanel({
                 onClick={copy}
                 className="rounded-lg border border-zinc-200 px-4 py-1.5 text-xs text-zinc-600 transition hover:bg-zinc-100"
               >
-                {copied ? "Kopyalandı!" : "Kopyala"}
+                {copied ? "Copied!" : "Copy"}
               </button>
               {SENDABLE_TYPES.has(type) && (
                 <button
@@ -208,12 +208,12 @@ export default function AIAssistantPanel({
                   disabled={!canSend || sending}
                   title={
                     lead.email
-                      ? "Bu firmaya SMTP ile gönder"
-                      : "Bu firmanın e-postası yok"
+                      ? "Send to this company via SMTP"
+                      : "This company has no email address"
                   }
                   className="rounded-lg bg-emerald-500 px-4 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-400 disabled:opacity-50"
                 >
-                  {sending ? "Gönderiliyor..." : "E-posta Gönder"}
+                  {sending ? "Sending..." : "Send Email"}
                 </button>
               )}
             </div>

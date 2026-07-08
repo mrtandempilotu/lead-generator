@@ -16,9 +16,9 @@ import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
 const LINKS = [
   { href: "/", label: "Dashboard", icon: LayoutGrid },
   { href: "/leads", label: "Leads", icon: Users },
-  { href: "/email", label: "E-Mail", icon: Mail },
+  { href: "/email", label: "Email", icon: Mail },
   { href: "/whatsapp", label: "WhatsApp", icon: MessageCircle },
-  { href: "/preise", label: "Preise", icon: CreditCard },
+  { href: "/preise", label: "Pricing", icon: CreditCard },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
@@ -30,13 +30,13 @@ export default function BottomNav() {
 
   return (
     <>
-      {/* Yeni arama için yüzen aksiyon düğmesi — 6 sekmelik alt navigasyonda
-          yer olmadığı için buraya taşındı. */}
+      {/* Floating action button for a new search — moved here since there's no
+          room for it in the 6-tab bottom nav. */}
       {pathname !== "/search" && (
         <button
           type="button"
           onClick={() => router.push("/search")}
-          aria-label="Yeni arama"
+          aria-label="New search"
           className="fixed bottom-20 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 transition hover:bg-indigo-400 active:scale-95"
         >
           <Search className="h-5 w-5" />
@@ -67,8 +67,8 @@ export default function BottomNav() {
   );
 }
 
-// Not: çıkış (logout) işlemi artık Ayarlar sayfasında; burada tutmuyoruz ki
-// mockup'taki 6 sekmelik sade alt bar korunsun.
+// Note: sign out now lives on the Settings page, not here, so the mockup's
+// clean 6-tab bottom bar stays intact.
 export async function signOutAndRedirect(router: ReturnType<typeof useRouter>) {
   const supabase = getSupabaseBrowserClient();
   await supabase.auth.signOut();

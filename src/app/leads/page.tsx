@@ -31,21 +31,21 @@ interface LeadRow {
 }
 
 const STATUS_COLUMNS: { key: string; label: string; dot: string; badge: string }[] = [
-  { key: "new", label: "Yeni", dot: "bg-indigo-500", badge: "bg-indigo-50 text-indigo-600" },
-  { key: "contacted", label: "İletişime Geçildi", dot: "bg-amber-500", badge: "bg-amber-50 text-amber-600" },
-  { key: "interested", label: "İlgileniyor", dot: "bg-sky-500", badge: "bg-sky-50 text-sky-600" },
-  { key: "meeting", label: "Toplantı", dot: "bg-violet-500", badge: "bg-violet-50 text-violet-600" },
-  { key: "negotiation", label: "Görüşme", dot: "bg-orange-500", badge: "bg-orange-50 text-orange-600" },
-  { key: "won", label: "Kazanıldı", dot: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-600" },
-  { key: "lost", label: "Kaybedildi", dot: "bg-red-500", badge: "bg-red-50 text-red-600" },
+  { key: "new", label: "New", dot: "bg-indigo-500", badge: "bg-indigo-50 text-indigo-600" },
+  { key: "contacted", label: "Contacted", dot: "bg-amber-500", badge: "bg-amber-50 text-amber-600" },
+  { key: "interested", label: "Interested", dot: "bg-sky-500", badge: "bg-sky-50 text-sky-600" },
+  { key: "meeting", label: "Meeting", dot: "bg-violet-500", badge: "bg-violet-50 text-violet-600" },
+  { key: "negotiation", label: "Negotiation", dot: "bg-orange-500", badge: "bg-orange-50 text-orange-600" },
+  { key: "won", label: "Won", dot: "bg-emerald-500", badge: "bg-emerald-50 text-emerald-600" },
+  { key: "lost", label: "Lost", dot: "bg-red-500", badge: "bg-red-50 text-red-600" },
 ];
 
 const VERIFICATION_LABELS: Record<string, string> = {
-  valid: "Geçerli",
-  risky: "Riskli",
+  valid: "Valid",
+  risky: "Risky",
   catchall: "Catch-all",
-  invalid: "Geçersiz",
-  unknown: "Bilinmiyor",
+  invalid: "Invalid",
+  unknown: "Unknown",
 };
 
 const VERIFICATION_STYLES: Record<string, string> = {
@@ -109,7 +109,7 @@ function LeadCard({
                 checked={selected}
                 onChange={() => onToggleSelect(lead.id)}
                 className="h-3.5 w-3.5 shrink-0 rounded border-zinc-300 accent-indigo-500"
-                aria-label="Seç"
+                aria-label="Select"
               />
               <button
                 type="button"
@@ -117,7 +117,7 @@ function LeadCard({
                 className={`shrink-0 ${
                   lead.is_favorite ? "text-amber-500" : "text-zinc-300 hover:text-amber-500"
                 }`}
-                aria-label="Favori"
+                aria-label="Favorite"
               >
                 ★
               </button>
@@ -141,7 +141,7 @@ function LeadCard({
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <span
               className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[11px] font-medium ${tier.badge}`}
-              title={`Lead skoru: ${score}/100`}
+              title={`Lead score: ${score}/100`}
             >
               <span>{tier.icon}</span>
               {tier.label}
@@ -151,7 +151,7 @@ function LeadCard({
                 className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-1.5 py-0.5 text-[11px] text-zinc-600"
                 title={lead.email}
               >
-                <Mail className="h-3 w-3" /> Mail
+                <Mail className="h-3 w-3" /> Email
               </span>
             )}
             {lead.website && (
@@ -175,7 +175,7 @@ function LeadCard({
               rel="noopener noreferrer"
               className="text-indigo-600 hover:underline"
             >
-              Site
+              Website
             </a>
           </>
         )}
@@ -205,7 +205,7 @@ function LeadCard({
 
       {lead.reminder_at && (
         <p className="mt-1 text-[11px] text-amber-600">
-          Hatırlatıcı: {new Date(lead.reminder_at).toLocaleDateString("tr-TR")}
+          Reminder: {new Date(lead.reminder_at).toLocaleDateString("en-US")}
         </p>
       )}
 
@@ -215,14 +215,14 @@ function LeadCard({
           onClick={() => setExpanded(!expanded)}
           className="text-xs text-indigo-600 hover:underline"
         >
-          {expanded ? "Kapat" : "Not / Etiket / Hatırlatıcı"}
+          {expanded ? "Close" : "Note / Tag / Reminder"}
         </button>
         <button
           type="button"
           onClick={() => setAiOpen(true)}
           className="text-xs text-indigo-600 hover:underline"
         >
-          AI Mesaj
+          AI Message
         </button>
       </div>
 
@@ -244,14 +244,14 @@ function LeadCard({
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Not ekle..."
+            placeholder="Add a note..."
             rows={2}
             className="w-full rounded border border-zinc-200 bg-zinc-50 px-2 py-1 text-xs text-zinc-900 outline-none focus:border-indigo-400 focus:bg-white"
           />
           <input
             value={tagsInput}
             onChange={(e) => setTagsInput(e.target.value)}
-            placeholder="etiket1, etiket2"
+            placeholder="tag1, tag2"
             className="w-full rounded border border-zinc-200 bg-zinc-50 px-2 py-1 text-xs text-zinc-900 outline-none focus:border-indigo-400 focus:bg-white"
           />
           <input
@@ -266,7 +266,7 @@ function LeadCard({
             disabled={saving}
             className="w-full rounded bg-indigo-500 px-2 py-1 text-xs font-medium text-white transition hover:bg-indigo-400 disabled:opacity-50"
           >
-            {saving ? "Kaydediliyor..." : "Kaydet"}
+            {saving ? "Saving..." : "Save"}
           </button>
         </div>
       )}
@@ -290,7 +290,7 @@ function RemindersPanel({
     .map((l) => ({ lead: l, date: new Date(l.reminder_at as string) }))
     .sort((a, b) => a.date.getTime() - b.date.getTime());
 
-  // Bugüne kadar (dahil) vadesi gelenler, ve önümüzdeki 7 gün içinde yaklaşanlar.
+  // Reminders due today or earlier, plus ones coming up in the next 7 days.
   const overdueOrToday = withReminder.filter((r) => r.date.getTime() <= endToday);
   const upcoming = withReminder.filter(
     (r) => r.date.getTime() > endToday && r.date.getTime() < in7Days
@@ -301,7 +301,7 @@ function RemindersPanel({
   return (
     <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50/60 p-4 animate-fade-in-up">
       <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-amber-800">
-        🔔 Hatırlatıcılar
+        🔔 Reminders
       </p>
       <div className="space-y-1.5">
         {overdueOrToday.map(({ lead, date }) => (
@@ -350,7 +350,7 @@ function ReminderRow({
             overdue ? "bg-red-100 text-red-600" : "bg-amber-100 text-amber-700"
           }`}
         >
-          {date.toLocaleDateString("tr-TR")}
+          {date.toLocaleDateString("en-US")}
         </span>
         <span className="font-medium text-zinc-900">{lead.name}</span>
         {lead.email && <span className="text-zinc-400"> · {lead.email}</span>}
@@ -360,7 +360,7 @@ function ReminderRow({
         onClick={() => onClear(lead.id)}
         className="shrink-0 rounded border border-amber-300 px-2 py-0.5 text-amber-700 transition hover:bg-amber-100"
       >
-        Temizle
+        Clear
       </button>
     </div>
   );
@@ -385,12 +385,12 @@ export default function LeadsPage() {
       const res = await fetch("/api/leads");
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Bilinmeyen bir hata oluştu.");
+        setError(data.error ?? "An unknown error occurred.");
         return;
       }
       setLeads(data.leads);
     } catch {
-      setError("Kayıtlı lead'ler yüklenirken bir hata oluştu.");
+      setError("An error occurred while loading saved leads.");
     } finally {
       setLoading(false);
     }
@@ -479,8 +479,8 @@ export default function LeadsPage() {
       <header className="mb-8 animate-fade-in-up">
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">CRM</h1>
         <p className="mt-2 text-zinc-500">
-          Bulunan lead&apos;leri durumlarına göre yönetin; skorlayın, not,
-          etiket ve hatırlatıcı ekleyin, toplu e-posta gönderin.
+          Manage found leads by status; score them, add notes, tags, and
+          reminders, and send bulk emails.
         </p>
       </header>
 
@@ -495,7 +495,7 @@ export default function LeadsPage() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="İsim, e-posta, şehir veya sektöre göre filtrele..."
+          placeholder="Filter by name, email, city, or industry..."
           className="w-full max-w-md rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-indigo-400 focus:bg-white"
         />
         <label className="flex items-center gap-2 text-sm text-zinc-600">
@@ -505,7 +505,7 @@ export default function LeadsPage() {
             onChange={(e) => setFavoritesOnly(e.target.checked)}
             className="h-4 w-4 rounded border-zinc-300 bg-white accent-amber-500"
           />
-          Sadece favoriler ★
+          Favorites only ★
         </label>
         {filtered.length > 0 && (
           <button
@@ -513,7 +513,7 @@ export default function LeadsPage() {
             onClick={selectAllFiltered}
             className="text-sm text-indigo-600 hover:underline"
           >
-            Tümünü seç ({filtered.length})
+            Select all ({filtered.length})
           </button>
         )}
       </div>
@@ -521,7 +521,7 @@ export default function LeadsPage() {
       {selectedIds.size > 0 && (
         <div className="sticky top-2 z-30 mb-6 flex flex-wrap items-center gap-2 rounded-2xl border border-indigo-200 bg-white/90 p-3 shadow-sm backdrop-blur animate-fade-in-up">
           <span className="text-sm font-semibold text-indigo-700">
-            {selectedIds.size} seçili
+            {selectedIds.size} selected
           </span>
           <span className="mx-1 h-4 w-px bg-zinc-200" />
           <select
@@ -533,7 +533,7 @@ export default function LeadsPage() {
             className="rounded-lg border border-zinc-200 bg-zinc-50 px-2 py-1.5 text-xs text-zinc-700 outline-none"
           >
             <option value="" disabled>
-              Durum değiştir...
+              Change status...
             </option>
             {STATUS_COLUMNS.map((s) => (
               <option key={s.key} value={s.key}>
@@ -545,7 +545,7 @@ export default function LeadsPage() {
             <input
               value={bulkTag}
               onChange={(e) => setBulkTag(e.target.value)}
-              placeholder="etiket ekle"
+              placeholder="add tag"
               className="w-28 rounded-lg border border-zinc-200 bg-zinc-50 px-2 py-1.5 text-xs text-zinc-700 outline-none focus:border-indigo-400"
             />
             <button
@@ -553,7 +553,7 @@ export default function LeadsPage() {
               onClick={bulkAddTag}
               className="rounded-lg border border-zinc-200 px-2 py-1.5 text-xs text-zinc-600 transition hover:bg-zinc-100"
             >
-              Ekle
+              Add
             </button>
           </div>
           <button
@@ -561,26 +561,26 @@ export default function LeadsPage() {
             onClick={() => bulkUpdate({ is_favorite: true })}
             className="rounded-lg border border-zinc-200 px-2 py-1.5 text-xs text-zinc-600 transition hover:bg-zinc-100"
           >
-            ★ Favori
+            ★ Favorite
           </button>
           <button
             type="button"
             onClick={() => setBulkEmailOpen(true)}
             className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-400"
           >
-            Toplu AI E-posta
+            Bulk AI Email
           </button>
           <button
             type="button"
             onClick={clearSelection}
             className="ml-auto text-xs text-zinc-500 hover:text-zinc-800"
           >
-            Seçimi temizle
+            Clear selection
           </button>
         </div>
       )}
 
-      {loading && <p className="text-sm text-zinc-500">Yükleniyor...</p>}
+      {loading && <p className="text-sm text-zinc-500">Loading...</p>}
       {error && (
         <p className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600">
           {error}
@@ -591,8 +591,8 @@ export default function LeadsPage() {
         !error &&
         (leads.length === 0 ? (
           <div className="glass-card animate-fade-in-up rounded-2xl p-6 text-sm text-zinc-500">
-            Henüz kayıtlı lead yok. Arama sayfasından bir arama yapın;
-            e-postası bulunan firmalar otomatik olarak burada listelenecek.
+            No leads yet. Run a search from the Search page; companies with a
+            found email will be listed here automatically.
           </div>
         ) : (
           <div className="grid animate-fade-in-up gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -630,7 +630,7 @@ export default function LeadsPage() {
                     ))}
                     {colLeads.length === 0 && (
                       <div className="rounded-xl border border-dashed border-zinc-200 p-4 text-center text-xs text-zinc-400">
-                        Boş
+                        Empty
                       </div>
                     )}
                   </div>

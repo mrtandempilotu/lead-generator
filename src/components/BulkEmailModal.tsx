@@ -11,14 +11,14 @@ export interface BulkLead {
 }
 
 const TYPES: { key: string; label: string }[] = [
-  { key: "cold_email", label: "Soğuk E-posta" },
-  { key: "follow_up", label: "Takip E-postası" },
+  { key: "cold_email", label: "Cold Email" },
+  { key: "follow_up", label: "Follow-up Email" },
 ];
 
 const LANGUAGES: { key: string; label: string }[] = [
-  { key: "tr", label: "Türkçe" },
   { key: "en", label: "English" },
   { key: "de", label: "Deutsch" },
+  { key: "tr", label: "Türkçe" },
 ];
 
 type DraftStatus = "idle" | "generating" | "ready" | "sending" | "sent" | "error";
@@ -39,15 +39,15 @@ export default function BulkEmailModal({
   onClose: () => void;
   onSent: () => void;
 }) {
-  // Sadece e-postası olan lead'lere gönderim yapılabilir.
+  // Only leads with an email address can receive a send.
   const eligible = leads.filter((l) => l.email);
 
   const [type, setType] = useState("cold_email");
-  const [language, setLanguage] = useState("tr");
+  const [language, setLanguage] = useState("en");
   const [busy, setBusy] = useState(false);
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [campaignName, setCampaignName] = useState(
-    `Kampanya · ${new Date().toLocaleDateString("tr-TR")}`
+    `Campaign · ${new Date().toLocaleDateString("en-US")}`
   );
 
   function updateDraft(id: string, patch: Partial<Draft>) {
@@ -73,16 +73,16 @@ export default function BulkEmailModal({
         });
         const data = await res.json();
         if (!res.ok) {
-          updateDraft(lead.id, { status: "error", error: data.error ?? "Üretilemedi." });
+          updateDraft(lead.id, { status: "error", error: data.error ?? "Generation failed." });
           continue;
         }
         updateDraft(lead.id, {
           status: "ready",
           body: data.text ?? "",
-          subject: `${lead.name} için iş birliği`,
+          subject: `Collaboration opportunity with ${lead.name}`,
         });
       } catch {
-        updateDraft(lead.id, { status: "error", error: "İstek hatası." });
+        updateDraft(lead.id, { status: "error", error: "Request error." });
       }
     }
     setBusy(false);
@@ -91,22 +91,22 @@ export default function BulkEmailModal({
   async function sendAll() {
     setBusy(true);
 
-    // Bu gönderim turunu bir kampanya olarak grupla — E-Mail sayfasında
-    // gönderilen/açılan/yanıtlanan istatistikleriyle listelenebilsin diye.
+    // Group this send batch into a campaign so it can be listed with
+    // sent/opened/replied stats on the Email page.
     let campaignId: string | undefined;
     try {
       const res = await fetch("/api/campaigns", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: campaignName.trim() || "İsimsiz Kampanya",
+          name: campaignName.trim() || "Untitled Campaign",
           target: eligible.map((l) => l.city).filter(Boolean).join(", ") || null,
         }),
       });
       const data = await res.json();
       if (res.ok) campaignId = data.campaign?.id;
     } catch {
-      // kampanya oluşturulamazsa gönderim yine de devam etsin
+      // if campaign creation fails, still proceed with sending
     }
 
     let sentCount = 0;
@@ -128,13 +128,13 @@ export default function BulkEmailModal({
         });
         const data = await res.json();
         if (!res.ok) {
-          updateDraft(lead.id, { status: "error", error: data.error ?? "Gönderilemedi." });
+          updateDraft(lead.id, { status: "error", error: data.error ?? "Send failed." });
           continue;
         }
         updateDraft(lead.id, { status: "sent" });
         sentCount++;
       } catch {
-        updateDraft(lead.id, { status: "error", error: "Gönderim hatası." });
+        updateDraft(lead.id, { status: "error", error: "Send error." });
       }
     }
     setBusy(false);
@@ -149,7 +149,7 @@ export default function BulkEmailModal({
       <div className="glass-card flex max-h-full w-full max-w-2xl flex-col rounded-2xl bg-white p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-zinc-900">
-            Toplu AI E-posta ({eligible.length} firma)
+            Bulk AI Email ({eligible.length} companies)
           </h2>
           <button
             onClick={onClose}
@@ -161,7 +161,7 @@ export default function BulkEmailModal({
 
         {skipped > 0 && (
           <p className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">
-            {skipped} firmanın e-postası olmadığı için listeye alınmadı.
+            {skipped} companies were excluded because they have no email address.
           </p>
         )}
 
@@ -169,7 +169,7 @@ export default function BulkEmailModal({
           <input
             value={campaignName}
             onChange={(e) => setCampaignName(e.target.value)}
-            placeholder="Kampanya adı"
+            placeholder="Campaign name"
             className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-indigo-400 focus:bg-white"
           />
         </div>
@@ -213,7 +213,7 @@ export default function BulkEmailModal({
             disabled={busy || eligible.length === 0}
             className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-400 disabled:opacity-50"
           >
-            {busy ? "Çalışıyor..." : "Tümünü Üret"}
+            {busy ? "Working..." : "Generate All"}
           </button>
           <button
             type="button"
@@ -221,7 +221,7 @@ export default function BulkEmailModal({
             disabled={busy || readyCount === 0}
             className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-400 disabled:opacity-50"
           >
-            Tümünü Gönder ({readyCount})
+            Send All ({readyCount})
           </button>
         </div>
 
@@ -251,7 +251,7 @@ export default function BulkEmailModal({
                     <input
                       value={draft?.subject ?? ""}
                       onChange={(e) => updateDraft(lead.id, { subject: e.target.value })}
-                      placeholder="Konu"
+                      placeholder="Subject"
                       className="w-full rounded border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-900 outline-none focus:border-indigo-400"
                     />
                     <textarea
@@ -273,12 +273,12 @@ export default function BulkEmailModal({
 
 function StatusPill({ status }: { status: DraftStatus }) {
   const map: Record<DraftStatus, { label: string; cls: string }> = {
-    idle: { label: "Bekliyor", cls: "bg-zinc-100 text-zinc-500" },
-    generating: { label: "Üretiliyor...", cls: "bg-indigo-50 text-indigo-600" },
-    ready: { label: "Hazır", cls: "bg-sky-50 text-sky-600" },
-    sending: { label: "Gönderiliyor...", cls: "bg-amber-50 text-amber-600" },
-    sent: { label: "Gönderildi ✓", cls: "bg-emerald-50 text-emerald-600" },
-    error: { label: "Hata", cls: "bg-red-50 text-red-600" },
+    idle: { label: "Waiting", cls: "bg-zinc-100 text-zinc-500" },
+    generating: { label: "Generating...", cls: "bg-indigo-50 text-indigo-600" },
+    ready: { label: "Ready", cls: "bg-sky-50 text-sky-600" },
+    sending: { label: "Sending...", cls: "bg-amber-50 text-amber-600" },
+    sent: { label: "Sent ✓", cls: "bg-emerald-50 text-emerald-600" },
+    error: { label: "Error", cls: "bg-red-50 text-red-600" },
   };
   const m = map[status];
   return (

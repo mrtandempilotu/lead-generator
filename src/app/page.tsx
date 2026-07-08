@@ -71,13 +71,13 @@ interface DashboardData {
 }
 
 const LEAD_STATUS_LABELS: Record<string, string> = {
-  new: "Yeni",
-  contacted: "İletişime Geçildi",
-  interested: "İlgileniyor",
-  meeting: "Toplantı",
-  negotiation: "Görüşme",
-  won: "Kazanıldı",
-  lost: "Kaybedildi",
+  new: "New",
+  contacted: "Contacted",
+  interested: "Interested",
+  meeting: "Meeting",
+  negotiation: "Negotiation",
+  won: "Won",
+  lost: "Lost",
 };
 
 const LEAD_STATUS_STYLES: Record<string, string> = {
@@ -99,11 +99,11 @@ const VERIFICATION_COLORS: Record<string, string> = {
 };
 
 const VERIFICATION_LABELS: Record<string, string> = {
-  valid: "Geçerli",
-  risky: "Riskli",
+  valid: "Valid",
+  risky: "Risky",
   catchall: "Catch-all",
-  invalid: "Geçersiz",
-  unknown: "Bilinmiyor",
+  invalid: "Invalid",
+  unknown: "Unknown",
 };
 
 const VERIFICATION_BADGE_STYLES: Record<string, string> = {
@@ -124,10 +124,10 @@ const TOOLTIP_STYLE = {
 
 function greeting(): string {
   const h = new Date().getHours();
-  if (h < 6) return "Guten Nacht!";
-  if (h < 12) return "Guten Morgen!";
-  if (h < 18) return "Guten Tag!";
-  return "Guten Abend!";
+  if (h < 6) return "Good night!";
+  if (h < 12) return "Good morning!";
+  if (h < 18) return "Good afternoon!";
+  return "Good evening!";
 }
 
 function StatTile({
@@ -157,7 +157,7 @@ function StatTile({
 }
 
 function timeOf(iso: string): string {
-  return new Date(iso).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 }
 
 export default function DashboardPage() {
@@ -172,12 +172,12 @@ export default function DashboardPage() {
         const res = await fetch("/api/dashboard");
         const json = await res.json();
         if (!res.ok) {
-          setError(json.error ?? "Bilinmeyen bir hata oluştu.");
+          setError(json.error ?? "An unknown error occurred.");
           return;
         }
         setData(json);
       } catch {
-        setError("Dashboard verileri yüklenirken bir hata oluştu.");
+        setError("An error occurred while loading dashboard data.");
       } finally {
         setLoading(false);
       }
@@ -188,7 +188,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <main className="mx-auto max-w-md px-4 py-8 sm:max-w-2xl">
-        <p className="text-sm text-zinc-500">Yükleniyor...</p>
+        <p className="text-sm text-zinc-500">Loading...</p>
       </main>
     );
   }
@@ -197,7 +197,7 @@ export default function DashboardPage() {
     return (
       <main className="mx-auto max-w-md px-4 py-8 sm:max-w-2xl">
         <p className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600">
-          {error ?? "Veri bulunamadı."}
+          {error ?? "No data found."}
         </p>
       </main>
     );
@@ -210,7 +210,7 @@ export default function DashboardPage() {
           {greeting()} 👋
         </h1>
         <p className="mt-1 text-sm text-zinc-500">
-          {new Date().toLocaleDateString("tr-TR", {
+          {new Date().toLocaleDateString("en-US", {
             weekday: "long",
             day: "numeric",
             month: "long",
@@ -221,28 +221,28 @@ export default function DashboardPage() {
 
       <div className="mb-6 grid grid-cols-2 gap-3">
         <StatTile
-          label="E-Mails versendet"
+          label="Emails sent"
           value={data.emailsSent}
           icon={<Mail className="h-4.5 w-4.5" />}
           iconBg="bg-sky-50"
           iconColor="text-sky-600"
         />
         <StatTile
-          label="Öffnungsrate"
-          value={`%${data.openRate}`}
+          label="Open rate"
+          value={`${data.openRate}%`}
           icon={<TrendingUp className="h-4.5 w-4.5" />}
           iconBg="bg-emerald-50"
           iconColor="text-emerald-600"
         />
         <StatTile
-          label="Neue Leads"
+          label="New leads"
           value={data.newLeadsCount}
           icon={<Users className="h-4.5 w-4.5" />}
           iconBg="bg-amber-50"
           iconColor="text-amber-600"
         />
         <StatTile
-          label="Heisse Leads"
+          label="Hot leads"
           value={data.hotLeadsCount}
           icon={<Flame className="h-4.5 w-4.5" />}
           iconBg="bg-red-50"
@@ -253,23 +253,23 @@ export default function DashboardPage() {
       {data.hotLeadsCount > 0 && (
         <div className="mb-6 rounded-2xl border-l-4 border-red-500 bg-red-50/60 p-4 animate-fade-in-up">
           <p className="text-sm font-semibold text-red-700">
-            🔥 {data.hotLeadsCount} heisse Lead{data.hotLeadsCount > 1 ? "s" : ""} warten!
+            🔥 {data.hotLeadsCount} hot lead{data.hotLeadsCount > 1 ? "s" : ""} waiting!
           </p>
           <p className="mt-1 text-xs text-red-600">
             {data.hotLeadNames.join(", ")}
             {data.hotLeadsCount > data.hotLeadNames.length &&
-              ` und ${data.hotLeadsCount - data.hotLeadNames.length} weitere sind abschlussbereit.`}
+              ` and ${data.hotLeadsCount - data.hotLeadNames.length} more are deal-ready.`}
           </p>
         </div>
       )}
 
       <section className="mb-6 animate-fade-in-up">
-        <h2 className="mb-3 text-lg font-bold text-zinc-900">Live-Aktivitäten</h2>
-        <p className="mb-3 -mt-2 text-xs text-zinc-500">Letzte Aktionen Ihres Systems</p>
+        <h2 className="mb-3 text-lg font-bold text-zinc-900">Live Activity</h2>
+        <p className="mb-3 -mt-2 text-xs text-zinc-500">Recent actions in your system</p>
         <div className="glass-card divide-y divide-zinc-100 overflow-hidden rounded-2xl">
           {data.activity.length === 0 ? (
             <p className="p-4 text-sm text-zinc-500">
-              Henüz aktivite yok. Bir arama yapın veya e-posta gönderin.
+              No activity yet. Run a search or send an email.
             </p>
           ) : (
             data.activity.map((a) => (
@@ -277,7 +277,7 @@ export default function DashboardPage() {
                 <span className="text-lg leading-none">{a.icon}</span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm text-zinc-800">{a.text}</p>
-                  <p className="mt-0.5 text-[11px] text-zinc-400">{timeOf(a.time)} Uhr</p>
+                  <p className="mt-0.5 text-[11px] text-zinc-400">{timeOf(a.time)}</p>
                 </div>
               </div>
             ))
@@ -286,15 +286,15 @@ export default function DashboardPage() {
       </section>
 
       <section className="mb-6 animate-fade-in-up">
-        <h2 className="text-lg font-bold text-zinc-900">Vertriebs-Trichter</h2>
-        <p className="mb-3 text-xs text-zinc-500">Aktueller Monat</p>
+        <h2 className="text-lg font-bold text-zinc-900">Sales Funnel</h2>
+        <p className="mb-3 text-xs text-zinc-500">Current month</p>
         <div className="glass-card space-y-4 rounded-2xl p-5">
           {data.funnel.map((f) => (
             <div key={f.key}>
               <div className="mb-1 flex items-baseline justify-between">
                 <p className="text-sm font-medium text-zinc-700">{f.label}</p>
                 <p className="text-sm font-semibold text-zinc-900">
-                  {f.count.toLocaleString("tr-TR")}
+                  {f.count.toLocaleString("en-US")}
                 </p>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
@@ -303,32 +303,32 @@ export default function DashboardPage() {
                   style={{ width: `${Math.max(f.rate, f.count > 0 ? 1.5 : 0)}%` }}
                 />
               </div>
-              <p className="mt-1 text-[11px] text-zinc-400">{f.rate}% Konversionsrate</p>
+              <p className="mt-1 text-[11px] text-zinc-400">{f.rate}% conversion rate</p>
             </div>
           ))}
         </div>
       </section>
 
       <section className="mb-6 animate-fade-in-up">
-        <h2 className="mb-3 text-lg font-bold text-zinc-900">Detaylı Analiz</h2>
+        <h2 className="mb-3 text-lg font-bold text-zinc-900">Detailed Analysis</h2>
         <div className="mb-4 grid grid-cols-2 gap-3">
           <div className="glass-card rounded-2xl p-4">
-            <p className="text-xs font-medium text-zinc-500">Toplam Firma</p>
+            <p className="text-xs font-medium text-zinc-500">Total Companies</p>
             <p className="mt-1 text-2xl font-semibold text-zinc-900">{data.totalCompanies}</p>
           </div>
           <div className="glass-card rounded-2xl p-4">
-            <p className="text-xs font-medium text-zinc-500">Kontak Kalite Skoru</p>
+            <p className="text-xs font-medium text-zinc-500">Contact Quality Score</p>
             <p className="mt-1 text-2xl font-semibold text-zinc-900">
-              %{data.contactQualityScore}
+              {data.contactQualityScore}%
             </p>
           </div>
         </div>
 
         <div className="mb-4 grid gap-4">
           <div className="glass-card rounded-2xl p-5">
-            <p className="mb-4 text-sm font-medium text-zinc-700">Sektöre Göre Firmalar</p>
+            <p className="mb-4 text-sm font-medium text-zinc-700">Companies by Industry</p>
             {data.byIndustry.length === 0 ? (
-              <p className="text-sm text-zinc-500">Henüz veri yok.</p>
+              <p className="text-sm text-zinc-500">No data yet.</p>
             ) : (
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={data.byIndustry}>
@@ -350,9 +350,9 @@ export default function DashboardPage() {
           </div>
 
           <div className="glass-card rounded-2xl p-5">
-            <p className="mb-4 text-sm font-medium text-zinc-700">Şehre Göre Firmalar</p>
+            <p className="mb-4 text-sm font-medium text-zinc-700">Companies by City</p>
             {data.byCity.length === 0 ? (
-              <p className="text-sm text-zinc-500">Henüz veri yok.</p>
+              <p className="text-sm text-zinc-500">No data yet.</p>
             ) : (
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={data.byCity}>
@@ -367,9 +367,9 @@ export default function DashboardPage() {
           </div>
 
           <div className="glass-card rounded-2xl p-5">
-            <p className="mb-4 text-sm font-medium text-zinc-700">E-posta Doğrulama Oranı</p>
+            <p className="mb-4 text-sm font-medium text-zinc-700">Email Verification Rate</p>
             {data.byVerification.length === 0 ? (
-              <p className="text-sm text-zinc-500">Henüz veri yok.</p>
+              <p className="text-sm text-zinc-500">No data yet.</p>
             ) : (
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
@@ -396,9 +396,9 @@ export default function DashboardPage() {
           </div>
 
           <div className="glass-card rounded-2xl p-5">
-            <p className="mb-4 text-sm font-medium text-zinc-700">Son Aramalar</p>
+            <p className="mb-4 text-sm font-medium text-zinc-700">Recent Searches</p>
             {data.searchHistory.length === 0 ? (
-              <p className="text-sm text-zinc-500">Henüz arama yapılmadı.</p>
+              <p className="text-sm text-zinc-500">No searches yet.</p>
             ) : (
               <ul className="space-y-2">
                 {data.searchHistory.map((s) => (
@@ -410,7 +410,7 @@ export default function DashboardPage() {
                       {s.keyword} · {s.city}
                     </span>
                     <span className="text-xs text-zinc-500">
-                      {s.result_count} sonuç · {new Date(s.created_at).toLocaleDateString("tr-TR")}
+                      {s.result_count} results · {new Date(s.created_at).toLocaleDateString("en-US")}
                     </span>
                   </li>
                 ))}
@@ -420,28 +420,28 @@ export default function DashboardPage() {
         </div>
 
         <div className="mb-3 flex items-center justify-between gap-3">
-          <p className="text-sm font-medium text-zinc-700">Tüm Lead&apos;ler ({data.leads.length})</p>
+          <p className="text-sm font-medium text-zinc-700">All Leads ({data.leads.length})</p>
         </div>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="İsim, e-posta, şehir veya sektöre göre filtrele..."
+          placeholder="Filter by name, email, city, or industry..."
           className="mb-3 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-indigo-400 focus:bg-white"
         />
         <div className="glass-card overflow-hidden rounded-2xl">
           {data.leads.length === 0 ? (
             <p className="p-6 text-sm text-zinc-500">
-              Henüz kayıtlı lead yok. Arama sayfasından bir arama yapın.
+              No leads yet. Run a search from the Search page.
             </p>
           ) : (
             <div className="max-h-[420px] overflow-auto">
               <table className="w-full text-left text-xs">
                 <thead className="sticky top-0 border-b border-zinc-200 bg-zinc-50 text-zinc-500">
                   <tr>
-                    <th className="px-3 py-2 font-medium">Firma</th>
-                    <th className="px-3 py-2 font-medium">Şehir</th>
-                    <th className="px-3 py-2 font-medium">Doğrulama</th>
-                    <th className="px-3 py-2 font-medium">Durum</th>
+                    <th className="px-3 py-2 font-medium">Company</th>
+                    <th className="px-3 py-2 font-medium">City</th>
+                    <th className="px-3 py-2 font-medium">Verification</th>
+                    <th className="px-3 py-2 font-medium">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -467,7 +467,7 @@ export default function DashboardPage() {
                             }`}
                           >
                             {VERIFICATION_LABELS[lead.email_verification_status ?? "unknown"] ??
-                              "Bilinmiyor"}
+                              "Unknown"}
                           </span>
                         </td>
                         <td className="px-3 py-2">

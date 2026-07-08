@@ -1,7 +1,6 @@
-// Lead kalite skoru: bir lead'in ne kadar "değerli/ulaşılabilir" olduğunu
-// 0-100 arası tek bir sayıyla özetler. Tamamen türetilmiş bir değerdir
-// (veritabanında saklanmaz), böylece ekstra migration gerekmez ve mevcut
-// tüm lead'ler için anında hesaplanır.
+// Lead quality score: summarizes how "valuable/reachable" a lead is as a
+// single 0-100 number. Fully derived (not stored in the database), so no
+// extra migration is needed and it's computed instantly for all existing leads.
 
 export interface ScorableLead {
   email?: string | null;
@@ -16,7 +15,7 @@ export interface ScorableLead {
 export function computeLeadScore(lead: ScorableLead): number {
   let score = 0;
 
-  // E-posta doğrulama durumu (en önemli sinyal — max 40)
+  // Email verification status (the most important signal — max 40)
   switch (lead.email_verification_status) {
     case "valid":
       score += 40;
@@ -34,38 +33,38 @@ export function computeLeadScore(lead: ScorableLead): number {
       break;
   }
 
-  // En azından bir e-posta bulunmuş olması (max 10)
+  // At least an email was found (max 10)
   if (lead.email) score += 10;
 
-  // Web sitesi var (max 15)
+  // Has a website (max 15)
   if (lead.website) score += 15;
 
-  // Telefon var (max 10)
+  // Has a phone number (max 10)
   if (lead.phone) score += 10;
 
-  // Puan kalitesi (max 15)
+  // Rating quality (max 15)
   if (typeof lead.rating === "number") {
     if (lead.rating >= 4.5) score += 15;
     else if (lead.rating >= 4.0) score += 10;
     else if (lead.rating >= 3.0) score += 5;
   }
 
-  // Popülerlik / yorum sayısı (max 10)
+  // Popularity / review count (max 10)
   if (typeof lead.ratings_total === "number") {
     if (lead.ratings_total >= 100) score += 10;
     else if (lead.ratings_total >= 20) score += 6;
     else if (lead.ratings_total >= 5) score += 3;
   }
 
-  // Kapalı işletme cezası
+  // Closed business penalty
   if (lead.closed) score -= 25;
 
   return Math.max(0, Math.min(100, score));
 }
 
-// 4 kademeli skor sistemi (mockup: Heiss/Warm/Kühl/Kalt). "hot" eski API'yle
-// uyumluluk için ayrı bir isim yerine "heiss" kullanıyoruz; TIER_META ve
-// scoreTier tüketen tüm yerler bu 4 anahtarı bekler.
+// 4-tier scoring system (mockup: Hot/Warm/Cool/Cold). We use "heiss" as the
+// internal key instead of "hot" for backward compatibility with the old API;
+// every place that consumes TIER_META / scoreTier expects these 4 keys.
 export type ScoreTier = "heiss" | "warm" | "kuehl" | "kalt";
 
 export function scoreTier(score: number): ScoreTier {
@@ -80,7 +79,7 @@ export const TIER_META: Record<
   { label: string; icon: string; badge: string; dot: string; ring: string }
 > = {
   heiss: {
-    label: "Heiss",
+    label: "Hot",
     icon: "🔥",
     badge: "bg-red-50 text-red-600",
     dot: "bg-red-500",
@@ -94,14 +93,14 @@ export const TIER_META: Record<
     ring: "#f59e0b",
   },
   kuehl: {
-    label: "Kühl",
+    label: "Cool",
     icon: "❄️",
     badge: "bg-sky-50 text-sky-600",
     dot: "bg-sky-500",
     ring: "#38bdf8",
   },
   kalt: {
-    label: "Kalt",
+    label: "Cold",
     icon: "📦",
     badge: "bg-violet-50 text-violet-600",
     dot: "bg-violet-500",

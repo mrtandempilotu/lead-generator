@@ -15,12 +15,12 @@ export async function GET() {
   } = await userClient.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Giriş yapmanız gerekiyor." }, { status: 401 });
+    return NextResponse.json({ error: "You need to sign in." }, { status: 401 });
   }
 
   const supabase = getSupabaseServerClient();
   if (!supabase) {
-    return NextResponse.json({ error: "Supabase yapılandırılmamış." }, { status: 500 });
+    return NextResponse.json({ error: "Supabase is not configured." }, { status: 500 });
   }
 
   const { data: campaigns, error: campaignsError } = await supabase
@@ -89,19 +89,19 @@ export async function POST(req: NextRequest) {
   } = await userClient.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Giriş yapmanız gerekiyor." }, { status: 401 });
+    return NextResponse.json({ error: "You need to sign in." }, { status: 401 });
   }
 
   const body = await req.json().catch(() => ({}));
   const { name, target } = body as { name?: string; target?: string };
 
   if (!name || !name.trim()) {
-    return NextResponse.json({ error: "Kampanya adı gerekli." }, { status: 400 });
+    return NextResponse.json({ error: "Campaign name is required." }, { status: 400 });
   }
 
   const supabase = getSupabaseServerClient();
   if (!supabase) {
-    return NextResponse.json({ error: "Supabase yapılandırılmamış." }, { status: 500 });
+    return NextResponse.json({ error: "Supabase is not configured." }, { status: 500 });
   }
 
   const { data, error } = await supabase

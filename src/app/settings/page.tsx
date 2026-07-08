@@ -23,13 +23,13 @@ const EMPTY: SettingsRow = {
   smtp_port: null,
   smtp_user: "",
   smtp_password: "",
-  language: "tr",
+  language: "en",
 };
 
 const LANGUAGES = [
-  { value: "tr", label: "Türkçe" },
   { value: "en", label: "English" },
   { value: "de", label: "Deutsch" },
+  { value: "tr", label: "Türkçe" },
 ];
 
 function Field({
@@ -83,7 +83,7 @@ export default function SettingsPage() {
       const res = await fetch("/api/settings");
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Ayarlar yüklenemedi.");
+        setError(data.error ?? "Failed to load settings.");
         return;
       }
       if (data.settings) {
@@ -95,11 +95,11 @@ export default function SettingsPage() {
           smtp_port: data.settings.smtp_port ?? null,
           smtp_user: data.settings.smtp_user ?? "",
           smtp_password: data.settings.smtp_password ?? "",
-          language: data.settings.language ?? "tr",
+          language: data.settings.language ?? "en",
         });
       }
     } catch {
-      setError("Ayarlar yüklenirken bir hata oluştu.");
+      setError("An error occurred while loading settings.");
     } finally {
       setLoading(false);
     }
@@ -121,12 +121,12 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Kaydedilemedi.");
+        setError(data.error ?? "Failed to save.");
         return;
       }
-      setMessage("Ayarlar kaydedildi.");
+      setMessage("Settings saved.");
     } catch {
-      setError("Kaydedilirken bir hata oluştu.");
+      setError("An error occurred while saving.");
     } finally {
       setSaving(false);
     }
@@ -135,15 +135,15 @@ export default function SettingsPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
       <header className="mb-8 animate-fade-in-up">
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">Ayarlar</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">Settings</h1>
         <p className="mt-2 text-zinc-500">
-          Kendi API anahtarlarınızı girerek arama ve AI asistan özelliklerini
-          kendi kotanızla kullanabilirsiniz. Boş bırakılan alanlar için
-          uygulamanın paylaşılan varsayılan anahtarları kullanılır.
+          Enter your own API keys to use the search and AI assistant
+          features with your own quota. Fields left blank will use the
+          app&apos;s shared default keys.
         </p>
       </header>
 
-      {loading && <p className="text-sm text-zinc-500">Yükleniyor...</p>}
+      {loading && <p className="text-sm text-zinc-500">Loading...</p>}
 
       {!loading && (
         <div className="space-y-6 animate-fade-in-up">
@@ -159,10 +159,10 @@ export default function SettingsPage() {
           )}
 
           <section className="glass-card rounded-2xl p-5">
-            <h2 className="mb-1 text-sm font-semibold text-zinc-900">API Anahtarları</h2>
+            <h2 className="mb-1 text-sm font-semibold text-zinc-900">API Keys</h2>
             <p className="mb-4 text-xs text-zinc-500">
-              Apify (Google Maps arama), Hunter.io (e-posta bulma/doğrulama) ve
-              OpenRouter (AI mesaj üretimi).
+              Apify (Google Maps search), Hunter.io (email finding/verification),
+              and OpenRouter (AI message generation).
             </p>
             <div className="space-y-3">
               <Field
@@ -187,10 +187,10 @@ export default function SettingsPage() {
           </section>
 
           <section className="glass-card rounded-2xl p-5">
-            <h2 className="mb-1 text-sm font-semibold text-zinc-900">SMTP (e-posta gönderimi)</h2>
+            <h2 className="mb-1 text-sm font-semibold text-zinc-900">SMTP (email sending)</h2>
             <p className="mb-4 text-xs text-zinc-500">
-              Şu an sadece kaydediliyor; otomatik e-posta gönderimi henüz bu
-              bilgileri kullanmıyor (yakında).
+              Currently just saved; automatic email sending doesn&apos;t use
+              this yet (coming soon).
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <Field
@@ -206,12 +206,12 @@ export default function SettingsPage() {
                 placeholder="587"
               />
               <Field
-                label="SMTP Kullanıcı Adı"
+                label="SMTP Username"
                 value={form.smtp_user ?? ""}
                 onChange={(v) => set("smtp_user", v)}
               />
               <Field
-                label="SMTP Şifre"
+                label="SMTP Password"
                 type="password"
                 value={form.smtp_password ?? ""}
                 onChange={(v) => set("smtp_password", v)}
@@ -220,10 +220,10 @@ export default function SettingsPage() {
           </section>
 
           <section className="glass-card rounded-2xl p-5">
-            <h2 className="mb-1 text-sm font-semibold text-zinc-900">Dil</h2>
+            <h2 className="mb-1 text-sm font-semibold text-zinc-900">Language</h2>
             <p className="mb-4 text-xs text-zinc-500">
-              Tercihiniz kaydedilir; arayüzün tamamının çevirisi henüz
-              uygulanmadı (yakında).
+              Your preference is saved and used as the default language for
+              AI-generated emails. The app interface itself is in English.
             </p>
             <div className="flex gap-2">
               {LANGUAGES.map((l) => (
@@ -249,18 +249,18 @@ export default function SettingsPage() {
             disabled={saving}
             className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-400 disabled:opacity-50"
           >
-            {saving ? "Kaydediliyor..." : "Kaydet"}
+            {saving ? "Saving..." : "Save"}
           </button>
 
           <section className="glass-card rounded-2xl p-5">
-            <h2 className="mb-1 text-sm font-semibold text-zinc-900">Hesap</h2>
-            <p className="mb-4 text-xs text-zinc-500">Oturumu sonlandırın.</p>
+            <h2 className="mb-1 text-sm font-semibold text-zinc-900">Account</h2>
+            <p className="mb-4 text-xs text-zinc-500">Sign out of your session.</p>
             <button
               type="button"
               onClick={handleLogout}
               className="rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
             >
-              Çıkış Yap
+              Log Out
             </button>
           </section>
         </div>
