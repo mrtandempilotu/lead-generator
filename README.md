@@ -1,4 +1,4 @@
-# BerlinLead AI
+# GermanLead AI
 
 Almanya'da doğrulanmış e-postalı B2B lead'ler (otel, restoran, fabrika, inşaat, temizlik şirketi vb.) bulan, CRM'e otomatik kaydeden ve yöneten bir Next.js SaaS uygulaması. Her kullanıcı kendi hesabıyla giriş yapar ve yalnızca kendi arama geçmişini/lead'lerini görür.
 

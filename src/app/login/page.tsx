@@ -51,7 +51,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-slate-50 bg-[radial-gradient(ellipse_at_top,_rgba(99,102,241,0.08),_transparent_60%)] px-4">
       <div className="w-full max-w-sm rounded-2xl border border-zinc-200 bg-white/90 p-8 shadow-xl backdrop-blur-xl animate-fade-in-up">
         <h1 className="mb-1 text-2xl font-semibold text-zinc-900">
-          BerlinLead <span className="text-indigo-600">AI</span>
+          GermanLead <span className="text-indigo-600">AI</span>
         </h1>
         <p className="mb-6 text-sm text-zinc-500">
           {mode === "login" ? "Sign in to your account" : "Create a new account"}

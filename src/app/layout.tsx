@@ -7,7 +7,7 @@ import { getSupabaseServerClient } from "@/lib/supabase";
 import { computeLeadScore, scoreTier } from "@/lib/lead-score";
 
 export const metadata: Metadata = {
-  title: "BerlinLead AI",
+  title: "GermanLead AI",
   description:
     "Find and manage B2B leads with verified emails across Germany.",
 };

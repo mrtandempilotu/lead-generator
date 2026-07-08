@@ -22,7 +22,7 @@ export default function Header({
           </span>
           <div className="leading-tight">
             <p className="text-sm font-semibold tracking-tight text-zinc-900">
-              BerlinLead <span className="text-indigo-600">AI</span>
+              GermanLead <span className="text-indigo-600">AI</span>
             </p>
             {userEmail && (
               <p className="hidden text-[11px] text-zinc-400 sm:block">{userEmail}</p>
